@@ -138,3 +138,64 @@ Algoritma ; konusu
 //     printf("Toplam: %d\n", sonuc);
 //     return 0;
 // }
+
+// int main () {   // Sinavi gecme durumu hesaplama
+//     int vize1, vize2, final, ortalama;
+
+//     printf("1. Vize notunu giriniz: ");
+//     scanf("%d", &vize1);
+//     printf("2. Vize notunu giriniz: ");
+//     scanf("%d", &vize2);
+//     printf("Final notunu giriniz: ");
+//     scanf("%d", &final);
+
+//     ortalama = (vize1 * 0.3) + (vize2 * 0.3) + (final * 0.4);
+
+//     if (ortalama >= 50) {
+//         printf("Tebrikler! Sinavi gectiniz.\n");
+//     } else {
+//         printf("Maalesef, sinavi gecemediniz.\n");
+//     }
+//     return 0;
+
+// }
+
+// int main(){ // if - elsenin kisa yazimi
+
+//     int sayi;
+//     printf("Bir sayi giriniz: ");
+//     scanf("%d", &sayi);
+//     (sayi % 2 == 0) ? printf("Sayi cift\n") : printf("Sayi tek\n");
+       
+//     // ? operatoru, kosula bagli olarak iki farkli ifadeyi secmeye yarar. Kosul dogruysa ilk ifade, yanlissa ikinci ifade calistirilir.
+//     // Bu ornekte, sayi ciftse "Sayi cift" yazdirilir, tekse "Sayi tek" yazdirilir. 
+//     printf("\n\n");
+//     return 0;
+
+// }
+
+// int main () { // Kitap siparisinde indirim hesaplama
+//     int bookprice, orderQuantity;
+//     float discountRate, noDiscountPrice, discountPrice, sum;
+//     bookprice = 20;
+//     orderQuantity = 0;
+//     printf("Kac adet kitap siparis etmek istiyorsunuz? ");
+//     scanf("%d", &orderQuantity);
+//     if (orderQuantity >= 60) {
+//         discountRate = 0.30;
+//     } else {
+//         if (orderQuantity >= 30 && orderQuantity < 60) {
+//             discountRate = 0.20;
+//         } else if (orderQuantity >= 10 && orderQuantity < 30) {
+//             discountRate = 0.12;
+//         } else {
+//             discountRate = 0.01;
+//         } 
+//     }
+//     noDiscountPrice = bookprice * orderQuantity;
+//     discountPrice = noDiscountPrice * discountRate;
+//     sum = noDiscountPrice - discountPrice;
+//     printf("Indirimli fiyat: %.2f\n", sum);
+
+//     return 0;
+// }
