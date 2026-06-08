@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Faz1 · IoT Geliştirme Ortamı Kurulumu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0f0e;
+    --bg-2:#111817;
+    --panel:#0f1514;
+    --line:#1f2b29;
+    --line-soft:#172221;
+    --ink:#d7e0dd;
+    --ink-dim:#8a9794;
+    --ink-faint:#586663;
+    --signal:#36e27b;       /* terminal yeşili */
+    --amber:#ffb443;        /* uyarı/güç ledi */
+    --cyan:#42c9ff;         /* veri sinyali */
+    --danger:#ff5d52;
+    --mono:'IBM Plex Mono',monospace;
+    --sans:'IBM Plex Sans',sans-serif;
+    --display:'Chakra Petch',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:
+      radial-gradient(900px 500px at 85% -10%, rgba(54,226,123,.07), transparent 60%),
+      radial-gradient(700px 500px at -5% 20%, rgba(66,201,255,.05), transparent 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    padding:0 0 80px;
+  }
+  /* breadboard grid overlay */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+    background-image:
+      linear-gradient(var(--line-soft) 1px,transparent 1px),
+      linear-gradient(90deg,var(--line-soft) 1px,transparent 1px);
+    background-size:34px 34px;
+    mask-image:radial-gradient(ellipse 100% 70% at 50% 0%,#000 30%,transparent 80%);
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:0 22px;position:relative;z-index:1}
+
+  /* ---------- HEADER ---------- */
+  header{padding:54px 0 30px;border-bottom:1px solid var(--line)}
+  .tagline{
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.32em;text-transform:uppercase;
+    color:var(--signal);display:flex;align-items:center;gap:10px;margin-bottom:18px;
+  }
+  .tagline::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--signal);
+    box-shadow:0 0 0 4px rgba(54,226,123,.18);animation:pulse 2s infinite}
+  @keyframes pulse{50%{box-shadow:0 0 0 8px rgba(54,226,123,0)}}
+  h1{font-family:var(--display);font-weight:700;font-size:clamp(2rem,6vw,3.3rem);
+    line-height:1.04;letter-spacing:-.01em}
+  h1 .accent{color:var(--signal)}
+  .sub{color:var(--ink-dim);max-width:62ch;margin-top:16px;font-size:1.02rem}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px}
+  .chip{font-family:var(--mono);font-size:.74rem;border:1px solid var(--line);
+    background:var(--panel);padding:6px 11px;border-radius:6px;color:var(--ink-dim)}
+  .chip b{color:var(--cyan);font-weight:500}
+
+  /* ---------- IoT NEDEN paneli ---------- */
+  .why{
+    margin-top:30px;border:1px solid var(--line);border-left:3px solid var(--cyan);
+    background:linear-gradient(180deg,rgba(66,201,255,.05),transparent);
+    border-radius:0 10px 10px 0;padding:20px 22px;
+  }
+  .why h3{font-family:var(--display);font-size:1.05rem;color:var(--cyan);margin-bottom:8px;
+    display:flex;align-items:center;gap:9px}
+  .why p{color:var(--ink-dim);font-size:.95rem}
+  .why p+p{margin-top:9px}
+  .why b{color:var(--ink)}
+
+  /* ---------- STEP ---------- */
+  .step{margin-top:46px;scroll-margin-top:20px}
+  .step-head{display:flex;align-items:flex-start;gap:16px;margin-bottom:18px}
+  .num{
+    flex:none;width:46px;height:46px;border-radius:10px;display:grid;place-items:center;
+    font-family:var(--display);font-weight:700;font-size:1.25rem;color:var(--bg);
+    background:var(--signal);box-shadow:0 0 22px rgba(54,226,123,.35);position:relative;
+  }
+  .num::after{content:attr(data-l);position:absolute;font-family:var(--mono);font-size:.5rem;
+    bottom:4px;right:6px;color:rgba(11,15,14,.6)}
+  .step-head h2{font-family:var(--display);font-weight:600;font-size:1.5rem;line-height:1.2}
+  .step-head .meta{font-family:var(--mono);font-size:.74rem;color:var(--ink-faint);
+    text-transform:uppercase;letter-spacing:.14em;margin-top:3px}
+  .step > p{color:var(--ink-dim);margin-bottom:14px}
+  .step b,.step strong{color:var(--ink)}
+
+  /* ---------- OS TABS ---------- */
+  .tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin:18px 0 0}
+  .tab{
+    font-family:var(--mono);font-size:.8rem;background:none;border:1px solid transparent;
+    border-bottom:none;color:var(--ink-faint);padding:9px 15px;cursor:pointer;border-radius:7px 7px 0 0;
+    display:flex;align-items:center;gap:7px;transition:.15s;
+  }
+  .tab:hover{color:var(--ink-dim)}
+  .tab.on{color:var(--signal);background:var(--panel);border-color:var(--line);
+    border-bottom-color:var(--panel);margin-bottom:-1px}
+  .tab .dot{width:8px;height:8px;border-radius:2px}
+  .dot.win{background:#42c9ff}.dot.pi{background:#ff5d52}.dot.mac{background:#cfd6d4}
+  .pane{display:none;border:1px solid var(--line);border-top:none;
+    background:var(--panel);padding:20px;border-radius:0 0 10px 10px}
+  .pane.on{display:block;animation:fade .25s}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}}
+  .pane ol{margin:0 0 4px 20px}.pane ol li{margin-bottom:10px;color:var(--ink-dim)}
+  .pane ol li b{color:var(--ink)}
+
+  /* ---------- CODE BLOCK ---------- */
+  .code{
+    position:relative;margin:14px 0;border:1px solid var(--line);border-radius:9px;
+    background:#070a09;overflow:hidden;
+  }
+  .code-top{display:flex;align-items:center;justify-content:space-between;
+    background:var(--bg-2);padding:8px 12px;border-bottom:1px solid var(--line)}
+  .code-top span{font-family:var(--mono);font-size:.7rem;color:var(--ink-faint);
+    letter-spacing:.1em;text-transform:uppercase}
+  .copy{font-family:var(--mono);font-size:.7rem;background:transparent;border:1px solid var(--line);
+    color:var(--ink-dim);padding:4px 10px;border-radius:5px;cursor:pointer;transition:.15s}
+  .copy:hover{border-color:var(--signal);color:var(--signal)}
+  .copy.done{color:var(--signal);border-color:var(--signal)}
+  pre{padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:.84rem;line-height:1.7}
+  pre code{color:var(--ink)}
+  .c-cmt{color:var(--ink-faint)}
+  .c-cmd{color:var(--signal)}
+  .c-flag{color:var(--amber)}
+  .c-str{color:var(--cyan)}
+  .prompt{color:var(--ink-faint);user-select:none}
+
+  /* ---------- CALLOUT ---------- */
+  .note{border:1px solid var(--line);border-radius:9px;padding:14px 16px;margin:14px 0;
+    background:var(--bg-2);font-size:.92rem;color:var(--ink-dim);display:flex;gap:12px}
+  .note .tag{flex:none;font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;
+    text-transform:uppercase;padding:3px 8px;border-radius:5px;height:fit-content}
+  .note.iot .tag{background:rgba(66,201,255,.13);color:var(--cyan)}
+  .note.warn .tag{background:rgba(255,180,67,.13);color:var(--amber)}
+  .note.danger .tag{background:rgba(255,93,82,.13);color:var(--danger)}
+  .note b{color:var(--ink)}
+  .note code{font-family:var(--mono);font-size:.85em;background:#070a09;padding:1px 6px;
+    border-radius:4px;color:var(--amber)}
+
+  /* ---------- EXTENSION TABLE ---------- */
+  .ext{display:grid;grid-template-columns:1fr;gap:8px;margin-top:6px}
+  .ext-row{display:flex;align-items:flex-start;gap:14px;border:1px solid var(--line);
+    background:var(--panel);border-radius:9px;padding:13px 15px}
+  .ext-row .k{font-family:var(--mono);font-size:.82rem;color:var(--signal);flex:none;
+    min-width:158px;font-weight:500}
+  .ext-row .v{color:var(--ink-dim);font-size:.9rem}
+  .ext-row .v em{color:var(--cyan);font-style:normal;font-family:var(--mono);font-size:.85em}
+  .ext-row.key{border-left:3px solid var(--amber)}
+
+  /* ---------- CHECKLIST ---------- */
+  .check{margin-top:14px;border:1px solid var(--line);border-radius:11px;
+    background:var(--panel);padding:8px}
+  .citem{display:flex;align-items:center;gap:13px;padding:12px 14px;cursor:pointer;
+    border-radius:8px;transition:.15s}
+  .citem:hover{background:var(--bg-2)}
+  .citem+.citem{border-top:1px solid var(--line-soft)}
+  .box{flex:none;width:22px;height:22px;border:1.5px solid var(--line);border-radius:6px;
+    display:grid;place-items:center;transition:.15s}
+  .box svg{width:13px;height:13px;stroke:var(--bg);stroke-width:3;fill:none;
+    stroke-dasharray:20;stroke-dashoffset:20;transition:.25s}
+  .citem.done .box{background:var(--signal);border-color:var(--signal)}
+  .citem.done .box svg{stroke-dashoffset:0}
+  .citem .lbl{font-family:var(--mono);font-size:.88rem;color:var(--ink-dim);transition:.15s}
+  .citem.done .lbl{color:var(--ink-faint);text-decoration:line-through}
+  .citem .lbl b{color:var(--ink)}
+  .progress{display:flex;align-items:center;gap:12px;padding:12px 14px 6px}
+  .bar{flex:1;height:6px;background:var(--bg-2);border-radius:3px;overflow:hidden}
+  .bar i{display:block;height:100%;width:0;background:var(--signal);border-radius:3px;
+    transition:width .4s;box-shadow:0 0 10px rgba(54,226,123,.5)}
+  .pct{font-family:var(--mono);font-size:.78rem;color:var(--signal);min-width:40px;text-align:right}
+
+  /* ---------- NEXT ---------- */
+  .next{margin-top:50px;border:1px solid var(--line);border-radius:14px;overflow:hidden;
+    background:linear-gradient(135deg,rgba(54,226,123,.07),rgba(66,201,255,.04))}
+  .next-in{padding:26px 24px}
+  .next .tagline{margin-bottom:12px}
+  .next h3{font-family:var(--display);font-size:1.4rem;margin-bottom:8px}
+  .next p{color:var(--ink-dim);font-size:.95rem;max-width:60ch}
+  .roadmap{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+  .rm{font-family:var(--mono);font-size:.74rem;padding:7px 12px;border-radius:7px;
+    border:1px solid var(--line);color:var(--ink-faint)}
+  .rm.now{border-color:var(--signal);color:var(--signal);background:rgba(54,226,123,.08)}
+
+  footer{margin-top:40px;text-align:center;font-family:var(--mono);font-size:.72rem;
+    color:var(--ink-faint);letter-spacing:.1em}
+
+  h2 .hl,.step h3{color:var(--signal)}
+  .step h3{font-family:var(--display);font-size:1.1rem;margin:22px 0 8px}
+  @media(max-width:560px){
+    .ext-row{flex-direction:column;gap:5px}.ext-row .k{min-width:0}
+    .step-head h2{font-size:1.25rem}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ===================== HEADER ===================== -->
+  <header>
+    <div class="tagline">Faz 1 · 0–6 Ay · Geliştirme Ortamı</div>
+    <h1>Python + VS Code + <span class="accent">venv</span><br>kurulumu</h1>
+    <p class="sub">IoT / Embedded / Drone geliştiricisi gözünden sıfırdan kurulum. Sadece "Python yükle" değil — sahada cihaza deploy eden, seri porttan sensör okuyan bir geliştiricinin kurması gereken temel.</p>
+    <div class="chips">
+      <span class="chip"><b>Stack:</b> Python 3 · pip · venv</span>
+      <span class="chip"><b>Editör:</b> VS Code + PlatformIO</span>
+      <span class="chip"><b>Hedef:</b> Arduino · RPi · MQTT</span>
+    </div>
+
+    <div class="why">
+      <h3>◇ Neden bu kurulum, neden bu sıra?</h3>
+      <p>Bir web geliştiricisi tek makinede çalışır. Sen ise <b>iki dünyada</b> yaşayacaksın: kodu Windows/Mac'te yazıp, onu <b>başka bir donanıma</b> (Raspberry Pi, ESP32, drone uçuş kontrolcüsü) gönderirsin. Bu yüzden kurulumun temel hedefi <b>taşınabilirlik ve tekrarlanabilirlik</b>.</p>
+      <p>İşte bu yüzden <b>venv</b> opsiyonel değil zorunlu: her projede farklı kütüphane sürümleri (pymavlink, pyserial, paho-mqtt) pinlersin ve aynı ortamı cihazda birebir yeniden kurabilirsin.</p>
+    </div>
+  </header>
+
+  <!-- ===================== STEP 1: PYTHON ===================== -->
+  <section class="step" id="s1">
+    <div class="step-head">
+      <div class="num" data-l="01">1</div>
+      <div>
+        <h2>Python 3 kurulumu</h2>
+        <div class="meta">Yorumlayıcı + pip + PATH</div>
+      </div>
+    </div>
+    <p>IoT'de Python iki rol üstlenir: <b>prototipleme dili</b> (Raspberry Pi, sensör testi, MQTT) ve <b>araç dili</b> (pymavlink ile drone telemetri, KiCad scriptleri). Faz1'in ana dili budur.</p>
+
+    <div class="tabs" data-group="os1">
+      <button class="tab on" data-t="win1"><span class="dot win"></span>Windows 11</button>
+      <button class="tab" data-t="pi1"><span class="dot pi"></span>Raspberry Pi / Linux</button>
+      <button class="tab" data-t="mac1"><span class="dot mac"></span>macOS</button>
+    </div>
+
+    <div class="pane on" id="win1">
+      <ol>
+        <li><b>python.org/downloads</b> adresinden son <b>3.12.x</b> sürümünü indir (3.13 çok yeni; bazı IoT kütüphaneleri henüz uyumlu olmayabilir).</li>
+        <li>Yükleyiciyi açtığında <b>en alttaki kutuyu mutlaka işaretle:</b> "Add python.exe to PATH". Bu adım %90 kurulum derdinin kaynağıdır.</li>
+        <li>"Install Now" → bitince <b>yeni</b> bir PowerShell aç ve doğrula:</li>
+      </ol>
+      <div class="code">
+        <div class="code-top"><span>PowerShell</span><button class="copy">kopyala</button></div>
+<pre><code><span class="prompt">PS&gt; </span><span class="c-cmd">python</span> <span class="c-flag">--version</span>
+<span class="c-cmt"># Python 3.12.x görmelisin</span>
+<span class="prompt">PS&gt; </span><span class="c-cmd">pip</span> <span class="c-flag">--version</span></code></pre>
+      </div>
+      <div class="note warn"><span class="tag">Dikkat</span><div><code>'python' is not recognized</code> hatası alırsan PATH işaretlenmemiştir. Yükleyiciyi tekrar çalıştır → <b>Modify</b> → PATH kutusunu işaretle.</div></div>
+    </div>
+
+    <div class="pane" id="pi1">
+      <ol>
+        <li>Raspberry Pi OS / Ubuntu ile Python 3 <b>zaten kuruludur</b> — ama komut <code>python3</code>'tür, <code>python</code> değil.</li>
+        <li>Eksik araçları tamamla (venv ve pip dahil):</li>
+      </ol>
+      <div class="code">
+        <div class="code-top"><span>bash · Debian/Ubuntu</span><button class="copy">kopyala</button></div>
+<pre><code><span class="prompt">$ </span><span class="c-cmd">sudo</span> apt update <span class="c-flag">&amp;&amp;</span> <span class="c-cmd">sudo</span> apt install <span class="c-str">python3 python3-pip python3-venv</span>
+<span class="prompt">$ </span><span class="c-cmd">python3</span> <span class="c-flag">--version</span></code></pre>
+      </div>
+      <div class="note iot"><span class="tag">IoT notu</span><div>Pi üzerinde GPIO/sensör erişimi için ilerde <code>gpiozero</code>, <code>RPi.GPIO</code>, <code>pyserial</code> kuracaksın — ama <b>sistem Python'ına değil, venv'e.</b> Sistem Python'ını kirletirsen apt güncellemeleri bozulabilir.</div></div>
+    </div>
+
+    <div class="pane" id="mac1">
+      <ol>
+        <li>Apple'ın sistem Python'ına <b>dokunma</b>. Homebrew ile istediğin sürümü kur:</li>
+        <li>macOS'ta her sürümün <b>kendi numaralı komutu</b> olur (<code>python3.12</code>, <code>python3.14</code> gibi) — Windows'taki <code>py</code> başlatıcısının karşılığı budur. <code>py</code> komutu macOS'ta <b>yoktur.</b></li>
+      </ol>
+      <div class="code">
+        <div class="code-top"><span>zsh · Homebrew</span><button class="copy">kopyala</button></div>
+<pre><code><span class="prompt">$ </span><span class="c-cmd">brew</span> install <span class="c-str">python@3.12</span>
+<span class="prompt">$ </span><span class="c-cmd">python3.12</span> <span class="c-flag">--version</span>   <span class="c-cmt"># sürümü adıyla çağır, garanti olsun</span></code></pre>
+      </div>
+      <div class="note iot"><span class="tag">macOS notu</span><div>Apple Silicon'da Homebrew yolu <code>/opt/homebrew/bin</code>, Intel Mac'te <code>/usr/local/bin</code>'dir. <code>python3.12 --version</code> çalışıyorsa kurulum tamamdır — bare <code>python3</code>'ün ne dediği önemli değil (aşağıdaki teşhis kutusuna bak).</div></div>
+    </div>
+
+    <h3>⚠ "python --version yanlış sürüm gösteriyor" — neden ve çözüm</h3>
+    <p>3.12 kurdun ama <code>python --version</code> sana <b>3.14</b> diyor? Bu bir hata değil. Makinede <b>birden fazla Python</b> var ve <code>python3</code> komutu PATH'te <b>ilk gördüğünü</b> çalıştırıyor — o da daha yeni sürüm. Önce ne olduğunu gör:</p>
+
+    <div class="tabs" data-group="diag">
+      <button class="tab on" data-t="diag-mac"><span class="dot mac"></span>macOS / Linux</button>
+      <button class="tab" data-t="diag-win"><span class="dot win"></span>Windows</button>
+    </div>
+    <div class="pane on" id="diag-mac">
+      <div class="code">
+        <div class="code-top"><span>zsh · teşhis</span><button class="copy">kopyala</button></div>
+<pre><code><span class="prompt">$ </span><span class="c-cmd">which</span> <span class="c-flag">-a</span> python python3   <span class="c-cmt"># PATH'teki tüm eşleşmeler — en üstteki kazanır</span>
+<span class="prompt">$ </span><span class="c-cmd">python3</span> <span class="c-flag">--version</span>        <span class="c-cmt"># şu an hangisi seçili</span>
+<span class="prompt">$ </span><span class="c-cmd">python3.12</span> <span class="c-flag">--version</span>     <span class="c-cmt"># 3.12 gerçekten kurulu mu?</span></code></pre>
+      </div>
+      <div class="note iot"><span class="tag">macOS notu</span><div><code>py --list</code> Windows'a özgüdür, macOS'ta yoktur. Burada sürümü <b>numaralı komutla</b> (<code>python3.12</code>) seçersin. <code>python3.12 --version</code> "command not found" derse 3.12 kurulu değildir → <code>brew install python@3.12</code>.</div></div>
+    </div>
+    <div class="pane" id="diag-win">
+      <div class="code">
+        <div class="code-top"><span>PowerShell · teşhis</span><button class="copy">kopyala</button></div>
+<pre><code><span class="prompt">PS&gt; </span><span class="c-cmd">py</span> <span class="c-flag">--list</span>          <span class="c-cmt"># kurulu TÜM sürümler + yolları</span>
+<span class="prompt">PS&gt; </span><span class="c-cmd">where</span> python       <span class="c-cmt"># hangi python.exe kazanıyor (ilk satır)</span></code></pre>
+      </div>
+    </div>
+
+    <div class="note warn"><span class="tag">Çözüm</span><div>PATH'le uğraşma. Sürümü <b>venv yaratırken sabitle</b> — venv kendi yorumlayıcısını içine kilitler, sonra global <code>python3</code> ne derse desin <b>(venv)</b> içinde doğru sürüm çalışır:<br>
+      • <b>macOS / Linux:</b> <code>python3.12 -m venv venv</code><br>
+      • <b>Windows:</b> <code>py -3.12 -m venv venv</code><br>
+      İkisi de aynı mantık; sadece komut adı farklı. Eski sürümü silmene gerek yok, yan yana dururlar.</div></div>
+  </section>
+
+  <!-- ===================== STEP 2: VS CODE ===================== -->
+  <section class="step" id="s2">
+    <div class="step-head">
+      <div class="num" data-l="02">2</div>
+      <div>
+        <h2>VS Code + IoT eklentileri</h2>
+        <div class="meta">Editör · Embedded toolchain · Uzak cihaz</div>
+      </div>
+    </div>
+    <p><b>code.visualstudio.com</b> → indir, kur. VS Code'u IoT için güçlü kılan editörün kendisi değil, doğru eklentiler. Soldaki <b>Extensions</b> (⌃⇧X / Ctrl+Shift+X) panelinden ara ve kur:</p>
+
+    <div class="ext">
+      <div class="ext-row"><div class="k">Python <em>Microsoft</em></div><div class="v">Yorumlayıcı seçimi, debug, IntelliSense. <b>Olmazsa olmaz.</b> Pylance otomatik gelir.</div></div>
+      <div class="ext-row key"><div class="k">PlatformIO IDE</div><div class="v">Faz2'nin (STM32 / ESP32 / Arduino) endüstri standardı toolchain'i. <b>Şimdiden kur</b> — Arduino IDE'ye göre çok daha profesyonel; kütüphane yönetimi + derleyici + upload tek yerde.</div></div>
+      <div class="ext-row key"><div class="k">Remote – SSH <em>Microsoft</em></div><div class="v">Raspberry Pi'ye <b>SSH ile bağlanıp doğrudan üzerinde kod yazarsın.</b> Headless (ekransız) Pi geliştirmenin tek mantıklı yolu.</div></div>
+      <div class="ext-row"><div class="k">Serial Monitor <em>Microsoft</em></div><div class="v">Arduino/ESP32'den gelen seri çıktıyı VS Code içinde izlersin. Sensör debug'ının kalbi.</div></div>
+      <div class="ext-row"><div class="k">C/C++ <em>Microsoft</em></div><div class="v">Faz2'de STM32/FreeRTOS C koduna geçince gerekecek. Şimdilik kur, beklesin.</div></div>
+    </div>
+
+    <div class="note iot"><span class="tag">IoT notu</span><div>VS Code'da bir <code>.py</code> dosyası açıkken sağ altta <b>Python yorumlayıcısını seç</b>. Buraya birazdan oluşturacağın <b>venv'i</b> seçeceksin — böylece Run/Debug doğru ortamı kullanır.</div></div>
+  </section>
+
+  <!-- ===================== STEP 3: TERMINAL ===================== -->
+  <section class="step" id="s3">
+    <div class="step-head">
+      <div class="num" data-l="03">3</div>
+      <div>
+        <h2>Terminal temelleri</h2>
+        <div class="meta">Dosya gezinme · Entegre terminal · SSH</div>
+      </div>
+    </div>
+    <p>IoT'de fare ile tıklayarak cihaz yönetemezsin — Pi'ye ssh'larsın, paket kurarsın, log okursun. Terminal senin <b>birincil arayüzün</b>. VS Code'da <b>Terminal → New Terminal</b> (⌃` / Ctrl+`) ile editörün içinden açılır; ayrı pencereye gerek yok.</p>
+
+    <h3>Hayatta kalma komutları</h3>
+    <div class="code">
+      <div class="code-top"><span>temel navigasyon</span><button class="copy">kopyala</button></div>
+<pre><code><span class="c-cmd">pwd</span>              <span class="c-cmt"># neredeyim? (Windows: cd)</span>
+<span class="c-cmd">ls</span>               <span class="c-cmt"># klasör içeriği (Windows: dir)</span>
+<span class="c-cmd">cd</span> projeler/iot  <span class="c-cmt"># klasöre gir</span>
+<span class="c-cmd">cd</span> <span class="c-flag">..</span>            <span class="c-cmt"># bir üst klasöre çık</span>
+<span class="c-cmd">mkdir</span> drone-test <span class="c-cmt"># yeni klasör oluştur</span></code></pre>
+    </div>
+
+    <h3>Cihaza bağlanmak (IoT'nin günlük rutini)</h3>
+    <div class="code">
+      <div class="code-top"><span>bash · Raspberry Pi'ye SSH</span><button class="copy">kopyala</button></div>
+<pre><code><span class="prompt">$ </span><span class="c-cmd">ssh</span> <span class="c-str">pi@192.168.1.42</span>     <span class="c-cmt"># Pi'nin IP'si ile bağlan</span>
+<span class="c-cmt"># Artık tüm komutlar Pi üzerinde çalışır</span>
+<span class="prompt">$ </span><span class="c-cmd">exit</span>                   <span class="c-cmt"># bağlantıyı kapat</span></code></pre>
+    </div>
+    <div class="note iot"><span class="tag">IoT notu</span><div>Pi'nin IP'sini bilmiyorsan, ağdaki cihazları <code>ping raspberrypi.local</code> ile veya router arayüzünden bulabilirsin. SSH'ı Pi'de <b>Raspberry Pi Configuration → Interfaces</b>'ten aktif etmen gerekir.</div></div>
+  </section>
+
+  <!-- ===================== STEP 4: VENV ===================== -->
+  <section class="step" id="s4">
+    <div class="step-head">
+      <div class="num" data-l="04">4</div>
+      <div>
+        <h2>Sanal ortam (venv)</h2>
+        <div class="meta">İzolasyon · Tekrarlanabilirlik · Deploy</div>
+      </div>
+    </div>
+
+    <div class="why" style="margin-top:0">
+      <h3>◇ venv tam olarak neyi çözer?</h3>
+      <p>Diyelim <b>tarım dronu</b> projen <code>pymavlink 2.4</code> istiyor, ama eski bir <b>sensör projen</b> başka bir sürüme bağımlı. Global kurarsan biri diğerini bozar.</p>
+      <p>venv = her projeye <b>kendine ait, izole bir Python kutusu</b>. Projeyi cihaza taşıdığında <code>requirements.txt</code> ile <b>birebir aynı ortamı</b> saniyeler içinde yeniden kurarsın. Endüstriyel/savunma projelerinde bu tekrarlanabilirlik bir lüks değil, gerekliliktir.</p>
+    </div>
+
+    <h3>Adım 4.1 — Proje klasörü oluştur ve gir</h3>
+    <div class="code">
+      <div class="code-top"><span>terminal</span><button class="copy">kopyala</button></div>
+<pre><code><span class="c-cmd">mkdir</span> iot-faz1 <span class="c-flag">&amp;&amp;</span> <span class="c-cmd">cd</span> iot-faz1</code></pre>
+    </div>
+
+    <h3>Adım 4.2 — venv'i oluştur (doğru sürümle)</h3>
+    <p>Klasörün içinde <code>venv</code> adında izole ortam yarat. <b>Hangi Python sürümünü istiyorsan onu adıyla çağır</b> — böylece yukarıdaki "yanlış sürüm" sorunu hiç yaşanmaz:</p>
+    <div class="code">
+      <div class="code-top"><span>terminal</span><button class="copy">kopyala</button></div>
+<pre><code><span class="c-cmt"># macOS / Linux — sürümü adıyla sabitle:</span>
+<span class="c-cmd">python3.12</span> <span class="c-flag">-m</span> venv venv
+
+<span class="c-cmt"># Windows — py başlatıcısı ile:</span>
+<span class="c-cmd">py</span> <span class="c-flag">-3.12</span> <span class="c-flag">-m</span> venv venv</code></pre>
+    </div>
+
+    <h3>Adım 4.3 — Ortamı aktifleştir</h3>
+    <div class="tabs" data-group="os4">
+      <button class="tab on" data-t="win4"><span class="dot win"></span>Windows</button>
+      <button class="tab" data-t="pi4"><span class="dot pi"></span>Linux / macOS</button>
+    </div>
+    <div class="pane on" id="win4">
+      <div class="code">
+        <div class="code-top"><span>PowerShell</span><button class="copy">kopyala</button></div>
+<pre><code><span class="prompt">PS&gt; </span>.\venv\Scripts\<span class="c-cmd">Activate.ps1</span></code></pre>
+      </div>
+      <div class="note danger"><span class="tag">Sık hata</span><div><code>running scripts is disabled</code> hatası → PowerShell scriptlere kapalıdır. <b>Tek seferlik</b> şunu çalıştır:<br><code>Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser</code><br>CMD kullanıyorsan komut farklı: <code>venv\Scripts\activate.bat</code></div></div>
+    </div>
+    <div class="pane" id="pi4">
+      <div class="code">
+        <div class="code-top"><span>bash / zsh</span><button class="copy">kopyala</button></div>
+<pre><code><span class="prompt">$ </span><span class="c-cmd">source</span> venv/bin/activate</code></pre>
+      </div>
+    </div>
+    <p>Başarılıysa satır başında <b><span style="color:var(--signal);font-family:var(--mono)">(venv)</span></b> görürsün. Artık bu terminaldeki her <code>pip install</code> yalnızca bu projeye gider.</p>
+
+    <h3>Adım 4.4 — IoT kütüphanelerini kur</h3>
+    <div class="code">
+      <div class="code-top"><span>(venv) aktifken</span><button class="copy">kopyala</button></div>
+<pre><code><span class="prompt">(venv) $ </span><span class="c-cmd">pip</span> install <span class="c-str">pyserial paho-mqtt</span>
+<span class="c-cmt"># pyserial  → Arduino/sensör ile seri haberleşme</span>
+<span class="c-cmt"># paho-mqtt → MQTT broker'a publish/subscribe</span></code></pre>
+    </div>
+
+    <h3>Adım 4.5 — Ortamı dondur (deploy'un anahtarı)</h3>
+    <p>Kurduğun her şeyi sürümleriyle bir dosyaya yaz. Cihaza geçtiğinde bu dosya ile her şeyi tek komutta kurarsın:</p>
+    <div class="code">
+      <div class="code-top"><span>(venv) $</span><button class="copy">kopyala</button></div>
+<pre><code><span class="prompt">(venv) $ </span><span class="c-cmd">pip</span> freeze <span class="c-flag">&gt;</span> requirements.txt   <span class="c-cmt"># mevcut ortamı kaydet</span>
+
+<span class="c-cmt"># --- başka makinede / Pi'de yeniden kurmak için: ---</span>
+<span class="prompt">(venv) $ </span><span class="c-cmd">pip</span> install <span class="c-flag">-r</span> requirements.txt</code></pre>
+    </div>
+
+    <h3>Adım 4.6 — Çıkış</h3>
+    <div class="code">
+      <div class="code-top"><span>terminal</span><button class="copy">kopyala</button></div>
+<pre><code><span class="prompt">(venv) $ </span><span class="c-cmd">deactivate</span>            <span class="c-cmt"># ortamdan çık</span></code></pre>
+    </div>
+
+    <h3>Adım 4.7 — venv'i <code style="color:var(--signal)">.gitignore</code>'a ekle</h3>
+    <div class="why" style="margin-top:0">
+      <h3>◇ Neden venv'i Git'e koymuyoruz?</h3>
+      <p>venv klasörü <b>yüzlerce MB</b> tutabilir, <b>makineye ve işletim sistemine özeldir</b> (Mac'te yarattığın venv Pi'de çalışmaz) ve zaten <code>requirements.txt</code>'ten saniyeler içinde yeniden üretilebilir. Repo'da paylaşılması gereken tek şey kaynak kodun + <code>requirements.txt</code>'tir.</p>
+    </div>
+    <p>Proje kök klasöründe (venv'in <b>yanında</b>) <code>.gitignore</code> adında bir dosya oluştur. Terminalden tek komutla yapabilirsin:</p>
+    <div class="code">
+      <div class="code-top"><span>terminal · .gitignore oluştur</span><button class="copy">kopyala</button></div>
+<pre><code><span class="c-cmt"># proje kökünde, venv'in yanında:</span>
+<span class="c-cmd">cat</span> <span class="c-flag">&gt;</span> .gitignore <span class="c-flag">&lt;&lt;</span> <span class="c-str">'EOF'</span>
+<span class="c-cmt"># --- Python / venv ---</span>
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+<span class="c-cmt"># --- editör / OS ---</span>
+.vscode/
+.DS_Store
+
+<span class="c-cmt"># --- IoT: gizli bilgiler ASLA commit edilmez ---</span>
+.env
+secrets.py
+*.pem
+config_local.py
+<span class="c-str">EOF</span></code></pre>
+    </div>
+    <div class="note iot"><span class="tag">IoT notu</span><div>Son blok kritik: MQTT broker şifresi, Wi-Fi parolası, API anahtarı veya drone telemetri token'ı gibi <b>sırları</b> koda gömme; <code>.env</code> dosyasına koy ve onu da gizle. Açık repo'ya yanlışlıkla sızan bir cihaz parolası sahada gerçek bir güvenlik açığıdır.</div></div>
+    <p>Doğru çalıştığını teyit et — <code>venv/</code> artık Git'in göreceği listede <b>olmamalı</b>:</p>
+    <div class="code">
+      <div class="code-top"><span>terminal · doğrula</span><button class="copy">kopyala</button></div>
+<pre><code><span class="prompt">$ </span><span class="c-cmd">git</span> init                <span class="c-cmt"># repo henüz yoksa</span>
+<span class="prompt">$ </span><span class="c-cmd">git</span> status              <span class="c-cmt"># 'venv/' listede GÖRÜNMEMELİ</span></code></pre>
+    </div>
+    <div class="note warn"><span class="tag">Geç kaldıysan</span><div>venv'i <code>.gitignore</code>'dan <b>önce</b> commit'lediysen, ignore tek başına yetmez — Git onu zaten takip ediyordur. Takipten çıkar:<br><code>git rm -r --cached venv</code> → ardından commit'le. Dosyalar diskte kalır, sadece Git'in takibinden düşer.</div></div></div>
+  </section>
+
+  <!-- ===================== CHECKLIST ===================== -->
+  <section class="step" id="check">
+    <div class="step-head">
+      <div class="num" data-l="✓" style="background:var(--cyan);box-shadow:0 0 22px rgba(66,201,255,.35)">✓</div>
+      <div>
+        <h2>Doğrulama kontrol listesi</h2>
+        <div class="meta">Bittiğini buradan onayla</div>
+      </div>
+    </div>
+    <div class="check" id="checklist">
+      <div class="progress"><div class="bar"><i></i></div><span class="pct">0%</span></div>
+      <div class="citem"><div class="box"><svg viewBox="0 0 24 24"><polyline points="4,12 10,18 20,6"/></svg></div><div class="lbl"><b>python --version</b> → 3.12.x çıktısı veriyor</div></div>
+      <div class="citem"><div class="box"><svg viewBox="0 0 24 24"><polyline points="4,12 10,18 20,6"/></svg></div><div class="lbl"><b>pip --version</b> çalışıyor</div></div>
+      <div class="citem"><div class="box"><svg viewBox="0 0 24 24"><polyline points="4,12 10,18 20,6"/></svg></div><div class="lbl">VS Code + <b>Python</b>, <b>PlatformIO</b>, <b>Remote-SSH</b> eklentileri kurulu</div></div>
+      <div class="citem"><div class="box"><svg viewBox="0 0 24 24"><polyline points="4,12 10,18 20,6"/></svg></div><div class="lbl">Terminalden <b>cd / ls / mkdir</b> ile gezinebiliyorum</div></div>
+      <div class="citem"><div class="box"><svg viewBox="0 0 24 24"><polyline points="4,12 10,18 20,6"/></svg></div><div class="lbl"><b>venv</b> oluşturup aktifleştirdim — satırda <b>(venv)</b> görünüyor</div></div>
+      <div class="citem"><div class="box"><svg viewBox="0 0 24 24"><polyline points="4,12 10,18 20,6"/></svg></div><div class="lbl">venv içinde <b>python --version</b> doğru sürümü (3.12) gösteriyor</div></div>
+      <div class="citem"><div class="box"><svg viewBox="0 0 24 24"><polyline points="4,12 10,18 20,6"/></svg></div><div class="lbl"><b>pyserial + paho-mqtt</b> venv içine kuruldu, <b>requirements.txt</b> oluştu</div></div>
+      <div class="citem"><div class="box"><svg viewBox="0 0 24 24"><polyline points="4,12 10,18 20,6"/></svg></div><div class="lbl"><b>.gitignore</b> oluşturdum; <b>git status</b>'ta <b>venv/</b> görünmüyor</div></div>
+      <div class="citem"><div class="box"><svg viewBox="0 0 24 24"><polyline points="4,12 10,18 20,6"/></svg></div><div class="lbl">VS Code sağ altta <b>yorumlayıcı olarak venv'i</b> seçtim</div></div>
+    </div>
+  </section>
+
+  <!-- ===================== NEXT ===================== -->
+  <div class="next">
+    <div class="next-in">
+      <div class="tagline">Sıradaki Durak</div>
+      <h3>İlk gerçek IoT kodu</h3>
+      <p>Ortam hazır. Sıradaki adım: venv içinde basit bir <b>seri port okuma</b> scripti (Arduino'dan veri) veya bir <b>MQTT publish/subscribe</b> denemesi. Bunlar Faz1'in ilk "çalışan donanım" anına götürür.</p>
+      <div class="roadmap">
+        <span class="rm now">● Faz1 · Python/Arduino/RPi/MQTT</span>
+        <span class="rm">Faz2 · C/STM32/ESP32/Drone</span>
+        <span class="rm">Faz3 · Modbus/OPC-UA/SCADA</span>
+        <span class="rm">Faz4 · Hedef Roller</span>
+      </div>
+    </div>
+  </div>
+
+  <footer>FAZ1.SETUP · v2 · IoT &amp; EMBEDDED GELİŞTİRME ORTAMI</footer>
+</div>
+
+<script>
+  // OS tabs
+  document.querySelectorAll('.tabs').forEach(group=>{
+    const tabs=group.querySelectorAll('.tab');
+    tabs.forEach(tab=>tab.addEventListener('click',()=>{
+      tabs.forEach(t=>t.classList.remove('on'));
+      tab.classList.add('on');
+      // panes that belong to same group: collect targets
+      const targets=[...tabs].map(t=>t.dataset.t);
+      targets.forEach(id=>document.getElementById(id)?.classList.remove('on'));
+      document.getElementById(tab.dataset.t)?.classList.add('on');
+    }));
+  });
+
+  // copy buttons
+  document.querySelectorAll('.copy').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const code=btn.closest('.code').querySelector('pre').innerText
+        .split('\n').map(l=>l.replace(/^(PS> |\(venv\) \$ |\$ )/,'')).join('\n');
+      navigator.clipboard.writeText(code).then(()=>{
+        const o=btn.textContent;btn.textContent='✓ kopyalandı';btn.classList.add('done');
+        setTimeout(()=>{btn.textContent=o;btn.classList.remove('done')},1400);
+      });
+    });
+  });
+
+  // checklist + progress
+  const items=document.querySelectorAll('#checklist .citem');
+  const fill=document.querySelector('#checklist .bar i');
+  const pct=document.querySelector('#checklist .pct');
+  function upd(){
+    const done=document.querySelectorAll('#checklist .citem.done').length;
+    const p=Math.round(done/items.length*100);
+    fill.style.width=p+'%';pct.textContent=p+'%';
+  }
+  items.forEach(i=>i.addEventListener('click',()=>{i.classList.toggle('done');upd()}));
+</script>
+</body>
+</html>
