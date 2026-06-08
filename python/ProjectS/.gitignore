@@ -1,0 +1,15 @@
+# --- Python / venv ---
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# --- editör / OS ---
+.vscode/
+.DS_Store
+
+# --- IoT: gizli bilgiler ASLA commit edilmez ---
+.env
+secrets.py
+*.pem
+config_local.py
