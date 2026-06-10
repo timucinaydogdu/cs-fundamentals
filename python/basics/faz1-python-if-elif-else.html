@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Faz1 · if / elif / else — Drone Karar Mantığı</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0f0e;--bg-2:#111817;--panel:#0f1514;--line:#1f2b29;--line-soft:#172221;
+    --ink:#d7e0dd;--ink-dim:#8a9794;--ink-faint:#586663;
+    --signal:#36e27b;--cyan:#42c9ff;--amber:#ffb443;--violet:#b98cff;--danger:#ff5d52;
+    --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;--display:'Chakra Petch',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:radial-gradient(900px 500px at 85% -10%,rgba(54,226,123,.07),transparent 60%),
+      radial-gradient(700px 500px at -5% 20%,rgba(66,201,255,.05),transparent 55%),var(--bg);
+    color:var(--ink);font-family:var(--sans);line-height:1.6;-webkit-font-smoothing:antialiased;padding:0 0 80px}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+    background-image:linear-gradient(var(--line-soft) 1px,transparent 1px),linear-gradient(90deg,var(--line-soft) 1px,transparent 1px);
+    background-size:34px 34px;mask-image:radial-gradient(ellipse 100% 70% at 50% 0%,#000 30%,transparent 80%)}
+  .wrap{max-width:920px;margin:0 auto;padding:0 22px;position:relative;z-index:1}
+
+  header{padding:54px 0 30px;border-bottom:1px solid var(--line)}
+  .tagline{font-family:var(--mono);font-size:.72rem;letter-spacing:.32em;text-transform:uppercase;
+    color:var(--signal);display:flex;align-items:center;gap:10px;margin-bottom:18px}
+  .tagline::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--signal);
+    box-shadow:0 0 0 4px rgba(54,226,123,.18);animation:pulse 2s infinite}
+  @keyframes pulse{50%{box-shadow:0 0 0 8px rgba(54,226,123,0)}}
+  h1{font-family:var(--display);font-weight:700;font-size:clamp(1.9rem,5.6vw,3.1rem);line-height:1.06;letter-spacing:-.01em}
+  h1 .accent{color:var(--signal)}
+  .sub{color:var(--ink-dim);max-width:64ch;margin-top:16px;font-size:1.02rem}
+  .why{margin-top:28px;border:1px solid var(--line);border-left:3px solid var(--cyan);
+    background:linear-gradient(180deg,rgba(66,201,255,.05),transparent);border-radius:0 10px 10px 0;padding:20px 22px}
+  .why h3{font-family:var(--display);font-size:1.05rem;color:var(--cyan);margin-bottom:8px}
+  .why p{color:var(--ink-dim);font-size:.95rem}.why p+p{margin-top:9px}.why b{color:var(--ink)}
+
+  .sec{margin-top:48px}
+  .sec-h{display:flex;align-items:center;gap:13px;margin-bottom:8px}
+  .sec-h .ico{font-family:var(--display);font-weight:700;width:38px;height:38px;border-radius:9px;display:grid;place-items:center;color:var(--bg);flex:none}
+  .sec-h h2{font-family:var(--display);font-size:1.5rem;font-weight:600;line-height:1.15}
+  .sec>p{color:var(--ink-dim);margin:6px 0 14px}.sec p b{color:var(--ink)}
+  .ex-tag{font-family:var(--mono);font-size:.7rem;color:var(--ink-faint);letter-spacing:.12em;text-transform:uppercase}
+
+  .code{position:relative;margin:10px 0;border:1px solid var(--line);border-radius:9px;background:#070a09;overflow:hidden}
+  .code-top{display:flex;align-items:center;justify-content:space-between;background:var(--bg-2);padding:8px 12px;border-bottom:1px solid var(--line)}
+  .code-top span{font-family:var(--mono);font-size:.7rem;color:var(--ink-faint);letter-spacing:.1em;text-transform:uppercase}
+  .copy{font-family:var(--mono);font-size:.7rem;background:transparent;border:1px solid var(--line);color:var(--ink-dim);padding:4px 10px;border-radius:5px;cursor:pointer;transition:.15s}
+  .copy:hover{border-color:var(--signal);color:var(--signal)}.copy.done{color:var(--signal);border-color:var(--signal)}
+  pre{padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:.82rem;line-height:1.7}
+  pre code{color:var(--ink)}
+  .c-cmt{color:var(--ink-faint)}.c-kw{color:var(--violet)}.c-fn{color:var(--cyan)}
+  .c-num{color:var(--signal)}.c-str{color:var(--amber)}.c-var{color:var(--ink)}.c-op{color:var(--danger)}
+  .out{color:var(--signal)}
+
+  .note{border:1px solid var(--line);border-radius:9px;padding:13px 15px;margin:14px 0 0;background:var(--bg-2);
+    font-size:.9rem;color:var(--ink-dim);display:flex;gap:12px}
+  .note .tag{flex:none;font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:5px;height:fit-content}
+  .note.tip .tag{background:rgba(54,226,123,.13);color:var(--signal)}
+  .note.warn .tag{background:rgba(255,180,67,.13);color:var(--amber)}
+  .note.eng .tag{background:rgba(185,140,255,.14);color:var(--violet)}
+  .note b{color:var(--ink)}
+  .note code{font-family:var(--mono);font-size:.85em;background:#070a09;padding:1px 6px;border-radius:4px;color:var(--amber)}
+
+  /* girinti görseli */
+  .indent{display:flex;gap:0;font-family:var(--mono);font-size:.84rem;border:1px solid var(--line);border-radius:9px;overflow:hidden;margin-top:10px}
+  .indent>div{padding:14px 16px}
+  .indent .ok{background:rgba(54,226,123,.06);border-right:1px solid var(--line);flex:1}
+  .indent .bad{background:rgba(255,93,82,.06);flex:1}
+  .indent .h{font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+  .indent .ok .h{color:var(--signal)}.indent .bad .h{color:var(--danger)}
+  .indent code{color:var(--ink-dim)}.indent .sp{color:var(--cyan);background:rgba(66,201,255,.12);border-radius:3px}
+
+  /* karar merdiveni (statik görsel) */
+  .ladder{margin-top:14px;display:grid;gap:0}
+  .rung{display:grid;grid-template-columns:64px 1fr auto;align-items:center;gap:14px;
+    border:1px solid var(--line);border-bottom:none;padding:14px 16px;background:var(--panel);position:relative}
+  .rung:first-child{border-radius:10px 10px 0 0}
+  .rung.elseR{border-radius:0 0 10px 10px;border-bottom:1px solid var(--line)}
+  .rung .kw{font-family:var(--mono);font-weight:600;font-size:.82rem;color:var(--violet)}
+  .rung .cond{font-family:var(--mono);font-size:.84rem;color:var(--ink-dim)}.rung .cond b{color:var(--ink)}
+  .rung .mode{font-family:var(--mono);font-weight:600;font-size:.78rem;padding:5px 11px;border-radius:6px;color:var(--bg);white-space:nowrap}
+  .m-LAND{background:var(--danger)}.m-RTL{background:var(--amber)}.m-LOITER{background:var(--cyan)}.m-AUTO{background:var(--signal)}.m-ALTHOLD{background:var(--violet)}
+
+  /* SIMÜLATÖR */
+  .sim{border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-top:14px;background:var(--panel)}
+  .sim-grid{display:grid;grid-template-columns:1fr 300px;gap:0}
+  .sim-controls{padding:24px;border-right:1px solid var(--line)}
+  .sl{margin-bottom:20px}
+  .sl-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+  .sl-top label{font-family:var(--mono);font-size:.84rem;color:var(--ink-dim)}
+  .sl-top output{font-family:var(--mono);font-weight:600;font-size:1.05rem;color:var(--c,var(--signal))}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;background:var(--bg-2);outline:none;cursor:pointer}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--c,var(--signal));box-shadow:0 0 10px color-mix(in srgb,var(--c,var(--signal)) 50%,transparent);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border:none;border-radius:50%;background:var(--c,var(--signal));cursor:pointer}
+  .toggle{display:flex;align-items:center;justify-content:space-between}
+  .toggle label{font-family:var(--mono);font-size:.84rem;color:var(--ink-dim)}
+  .sw{position:relative;width:52px;height:28px;border-radius:14px;background:var(--bg-2);border:1px solid var(--line);cursor:pointer;transition:.2s;flex:none}
+  .sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:var(--ink-faint);transition:.2s}
+  .sw.on{background:rgba(54,226,123,.2);border-color:var(--signal)}
+  .sw.on::after{left:27px;background:var(--signal)}
+  .sw-state{font-family:var(--mono);font-size:.72rem;margin-left:auto;margin-right:12px}
+  .sw-state.lock{color:var(--signal)}.sw-state.nolock{color:var(--danger)}
+
+  .sim-out{padding:24px;display:flex;flex-direction:column;background:#070a09}
+  .sim-out .lbl{font-family:var(--mono);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:10px}
+  .modebox{border-radius:12px;padding:22px 18px;text-align:center;transition:.25s;margin-bottom:8px}
+  .modebox .mname{font-family:var(--display);font-weight:700;font-size:2rem;letter-spacing:.02em;line-height:1}
+  .modebox .mdesc{font-size:.85rem;margin-top:8px;opacity:.92}
+  .why-fired{font-family:var(--mono);font-size:.76rem;color:var(--ink-dim);margin-top:14px;line-height:1.5}
+  .why-fired b{color:var(--ink)}
+  .evalrows{margin-top:16px;display:grid;gap:5px}
+  .er{font-family:var(--mono);font-size:.74rem;display:flex;justify-content:space-between;gap:10px;
+    padding:6px 9px;border-radius:6px;background:var(--bg-2);color:var(--ink-faint)}
+  .er .v{flex:none}
+  .er.pass{color:var(--ink-faint)}.er.pass .v{color:var(--danger)}
+  .er.hit{background:rgba(54,226,123,.1);color:var(--ink)}.er.hit .v{color:var(--signal)}
+  .er.skip{opacity:.4}
+
+  footer{margin-top:46px;text-align:center;font-family:var(--mono);font-size:.72rem;color:var(--ink-faint);letter-spacing:.1em}
+  @media(max-width:620px){.sim-grid{grid-template-columns:1fr}.sim-controls{border-right:none;border-bottom:1px solid var(--line)}.indent{flex-direction:column}.indent .ok{border-right:none;border-bottom:1px solid var(--line)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="tagline">Faz 1 · Python Temelleri · Ders 04</div>
+    <h1>if / elif / else:<br><span class="accent">otopilotun karar ağacı</span></h1>
+    <p class="sub">Bir drone saniyede onlarca kez şu soruyu sorar: "Şu an ne yapmalıyım?" Batarya, GPS, rüzgâr verisine bakar ve <b>bir uçuş moduna</b> karar verir. Bu karar ağacının Python'daki karşılığı tam olarak <b>if / elif / else</b>'tir.</p>
+    <div class="why">
+      <h3>◇ Failsafe = sıralı kontrol</h3>
+      <p>Otopilotun failsafe (güvenlik) mantığında <b>sıra her şeydir</b>: en tehlikeli durumu en önce kontrol edersin. <code>if/elif/else</code> tam böyle çalışır — koşulları yukarıdan aşağı dener, <b>ilk doğru olanı çalıştırır ve geri kalanına hiç bakmaz.</b></p>
+      <p>Yani "fırtına var mı?" sorusunu "batarya düşük mü?"den önce sorarsan, fırtınada doğru tepkiyi (LAND) garanti edersin. Bu derste hem yapıyı hem de bu sıralama mantığını kuracağız.</p>
+    </div>
+  </header>
+
+  <!-- MEKANIK -->
+  <section class="sec">
+    <div class="sec-h"><div class="ico" style="background:var(--violet)">⌥</div><h2>Yapı: üç dal</h2></div>
+    <p><code>if</code> bir koşulu test eder; doğruysa altındaki <b>girintili</b> bloğu çalıştırır. <code>elif</code> ("else if") önceki yanlışsa yeni bir koşul dener. <code>else</code> hiçbiri tutmazsa devreye girer — varsayılan davranış.</p>
+    <div class="code">
+      <div class="code-top"><span>python · iskelet</span><button class="copy">kopyala</button></div>
+<pre><code><span class="c-kw">if</span> <span class="c-var">kosul_1</span><span class="c-op">:</span>
+    <span class="c-cmt"># kosul_1 doğruysa SADECE bu çalışır</span>
+    <span class="c-fn">yap</span>(<span class="c-str">"A"</span>)
+<span class="c-kw">elif</span> <span class="c-var">kosul_2</span><span class="c-op">:</span>
+    <span class="c-cmt"># 1 yanlış AMA 2 doğruysa bu çalışır</span>
+    <span class="c-fn">yap</span>(<span class="c-str">"B"</span>)
+<span class="c-kw">else</span><span class="c-op">:</span>
+    <span class="c-cmt"># hiçbiri tutmazsa bu çalışır</span>
+    <span class="c-fn">yap</span>(<span class="c-str">"C"</span>)</code></pre>
+    </div>
+    <div class="note warn"><span class="tag">Girinti</span><div>Python'da bloğu <b>girinti</b> (boşluk) tanımlar — süslü parantez yok. Standart <b>4 boşluk</b>. Girintiyi karıştırırsan <code>IndentationError</code> alırsın. VS Code'da Tab tuşu otomatik 4 boşluk yapar.</div>
+    </div>
+    <div class="indent">
+      <div class="ok"><div class="h">✓ doğru — 4 boşluk girinti</div><code><span>if pil &lt; 20:</span><br><span class="sp">····</span>rtl()</code></div>
+      <div class="bad"><div class="h">✕ yanlış — girinti yok</div><code><span>if pil &lt; 20:</span><br>rtl()&nbsp;&nbsp;<span style="color:var(--danger)">← IndentationError</span></code></div>
+    </div>
+  </section>
+
+  <!-- KARAR AGACI GORSELI -->
+  <section class="sec">
+    <div class="sec-h"><div class="ico" style="background:var(--cyan)">⎇</div><h2>Drone karar ağacı</h2></div>
+    <p>Failsafe mantığımız, yukarıdan aşağı denenen bir merdiven. <b>İlk tutan koşul kazanır</b> — bu yüzden en kritik tehlike en üstte:</p>
+    <div class="ladder">
+      <div class="rung"><span class="kw">if</span><span class="cond"><b>rüzgâr ≥ 60</b> km/h &nbsp;<span style="color:var(--ink-faint)">— fırtına</span></span><span class="mode m-LAND">LAND</span></div>
+      <div class="rung"><span class="kw">elif</span><span class="cond"><b>batarya ≤ 20</b> % &nbsp;<span style="color:var(--ink-faint)">— düşük güç</span></span><span class="mode m-RTL">RTL</span></div>
+      <div class="rung"><span class="kw">elif</span><span class="cond"><b>GPS yok</b> &nbsp;<span style="color:var(--ink-faint)">— konum kilidi kayıp</span></span><span class="mode m-LOITER">LOITER</span></div>
+      <div class="rung elseR"><span class="kw">else</span><span class="cond">her şey normal</span><span class="mode m-AUTO">AUTO</span></div>
+    </div>
+    <div class="note tip"><span class="tag">Sıra</span><div>Neden fırtına en üstte? Çünkü düşük bataryalı bir dronun fırtınada doğru tepkisi yine de <b>inmektir</b>, eve dönmeye çalışmak değil. En acil/fiziksel tehlike önce gelir. Sıralama, mühendislik kararıdır — kod sadece onu uygular.</div></div>
+  </section>
+
+  <!-- TAM KOD -->
+  <section class="sec">
+    <div class="sec-h"><div class="ico" style="background:var(--signal)">▮</div><h2>Çalışan kod</h2></div>
+    <p class="ex-tag">if / elif / else + karşılaştırma + mantıksal operatörler</p>
+    <div class="code">
+      <div class="code-top"><span>python · ucus_modu.py</span><button class="copy">kopyala</button></div>
+<pre><code><span class="c-cmt"># --- anlık telemetri (sensörlerden) ---</span>
+<span class="c-var">ruzgar</span>   <span class="c-op">=</span> <span class="c-num">22</span>       <span class="c-cmt"># km/h</span>
+<span class="c-var">batarya</span>  <span class="c-op">=</span> <span class="c-num">18</span>       <span class="c-cmt"># %</span>
+<span class="c-var">gps_lock</span> <span class="c-op">=</span> <span class="c-kw">True</span>     <span class="c-cmt"># GPS konum kilidi var mı?</span>
+
+<span class="c-cmt"># --- karar mantığı: ilk tutan kazanır ---</span>
+<span class="c-kw">if</span> <span class="c-var">ruzgar</span> <span class="c-op">&gt;=</span> <span class="c-num">60</span><span class="c-op">:</span>
+    <span class="c-var">mod</span> <span class="c-op">=</span> <span class="c-str">"LAND"</span>            <span class="c-cmt"># fırtına: olduğun yerde in</span>
+<span class="c-kw">elif</span> <span class="c-var">batarya</span> <span class="c-op">&lt;=</span> <span class="c-num">20</span><span class="c-op">:</span>
+    <span class="c-var">mod</span> <span class="c-op">=</span> <span class="c-str">"RTL"</span>             <span class="c-cmt"># düşük güç: eve dön ← bu çalışır</span>
+<span class="c-kw">elif</span> <span class="c-kw">not</span> <span class="c-var">gps_lock</span><span class="c-op">:</span>
+    <span class="c-var">mod</span> <span class="c-op">=</span> <span class="c-str">"LOITER"</span>          <span class="c-cmt"># GPS yok: konumda bekle</span>
+<span class="c-kw">else</span><span class="c-op">:</span>
+    <span class="c-var">mod</span> <span class="c-op">=</span> <span class="c-str">"AUTO"</span>            <span class="c-cmt"># normal: göreve devam</span>
+
+<span class="c-fn">print</span>(<span class="c-str">"Uçuş modu:"</span>, <span class="c-var">mod</span>)   <span class="c-cmt"># </span><span class="out">Uçuş modu: RTL</span></code></pre>
+    </div>
+    <div class="note eng"><span class="tag">Mühendislik notu</span><div>Gerçek ArduPilot/PX4'te küçük ama önemli bir incelik var: <b>LOITER konum tutmak için GPS'e ihtiyaç duyar.</b> Yani GPS tamamen kaybolursa otopilot LOITER'a değil, GPS gerektirmeyen <code>ALT_HOLD</code> (sadece irtifa tut) ya da <code>STABILIZE</code> moduna düşer. Senaryoda LOITER'ı yapıyı öğrenmek için kullandık; sahada bu ayrımı bilmek sınav/iş görüşmesinde fark yaratır.</div></div>
+  </section>
+
+  <!-- SIK HATALAR -->
+  <section class="sec">
+    <div class="sec-h"><div class="ico" style="background:var(--amber)">!</div><h2>Üç sık hata</h2></div>
+    <div class="code">
+      <div class="code-top"><span>python · kaçın</span><button class="copy">kopyala</button></div>
+<pre><code><span class="c-cmt"># 1) = yerine == (atama / karşılaştırma karışıklığı)</span>
+<span class="c-kw">if</span> <span class="c-var">batarya</span> <span class="c-op">=</span> <span class="c-num">20</span><span class="c-op">:</span>      <span class="c-cmt"># ✕ SyntaxError</span>
+<span class="c-kw">if</span> <span class="c-var">batarya</span> <span class="c-op">==</span> <span class="c-num">20</span><span class="c-op">:</span>     <span class="c-cmt"># ✓ doğru</span>
+
+<span class="c-cmt"># 2) yanlış sıra — kritik koşul alttaysa hiç çalışmaz</span>
+<span class="c-kw">if</span> <span class="c-var">batarya</span> <span class="c-op">&lt;</span> <span class="c-num">50</span><span class="c-op">:</span>     <span class="c-cmt"># bu önce tutar, alttaki</span>
+    <span class="c-var">mod</span> <span class="c-op">=</span> <span class="c-str">"RTL"</span>
+<span class="c-kw">elif</span> <span class="c-var">batarya</span> <span class="c-op">&lt;</span> <span class="c-num">15</span><span class="c-op">:</span>   <span class="c-cmt"># ← buraya ASLA ulaşılmaz!</span>
+    <span class="c-var">mod</span> <span class="c-op">=</span> <span class="c-str">"LAND"</span>
+
+<span class="c-cmt"># 3) else unutmak — beklenmedik durumda mod tanımsız kalır</span></code></pre>
+    </div>
+    <div class="note tip"><span class="tag">Kural</span><div>2. hatanın dersi: <code>elif</code> zincirinde <b>en dar/en kritik koşul en üstte</b> olmalı. <code>batarya &lt; 15</code> kontrolünü <code>batarya &lt; 50</code>'den önce yaz.</div></div>
+  </section>
+
+  <!-- SIMÜLATÖR -->
+  <section class="sec">
+    <div class="sec-h"><div class="ico" style="background:var(--cyan)">▶</div><h2>Uçuş kontrolcüsü simülatörü</h2></div>
+    <p>Telemetriyi sen oynat; otopilotun hangi moda karar verdiğini ve <b>hangi <code>elif</code> dalının tetiklendiğini</b> canlı gör. Sağdaki değerlendirme listesi, kodun yukarıdan aşağı nasıl ilerlediğini gösterir.</p>
+    <div class="sim">
+      <div class="sim-grid">
+        <div class="sim-controls">
+          <div class="sl" style="--c:var(--cyan)">
+            <div class="sl-top"><label>Rüzgâr (km/h)</label><output id="o_wind">22</output></div>
+            <input type="range" id="s_wind" min="0" max="100" value="22">
+          </div>
+          <div class="sl" style="--c:var(--amber)">
+            <div class="sl-top"><label>Batarya (%)</label><output id="o_bat">18</output></div>
+            <input type="range" id="s_bat" min="0" max="100" value="18">
+          </div>
+          <div class="toggle">
+            <label>GPS kilidi</label>
+            <span class="sw-state lock" id="gps_state">VAR</span>
+            <div class="sw on" id="s_gps"></div>
+          </div>
+        </div>
+        <div class="sim-out">
+          <div class="lbl">▸ Aktif uçuş modu</div>
+          <div class="modebox" id="modebox"><div class="mname" id="mname">AUTO</div><div class="mdesc" id="mdesc"></div></div>
+          <div class="why-fired" id="whyfired"></div>
+          <div class="evalrows" id="evalrows"></div>
+        </div>
+      </div>
+    </div>
+    <div class="note tip"><span class="tag">Dene</span><div>Bataryayı 50'ye çek, GPS'i kapat → <b>LOITER</b>. Sonra rüzgârı 70'e çıkar → artık <b>LAND</b> kazanır, çünkü o koşul daha üstte. İşte "ilk tutan kazanır" mantığı.</div></div>
+  </section>
+
+  <footer>FAZ1.PYTHON · DERS 04 · IF / ELIF / ELSE &amp; DRONE FAILSAFE</footer>
+</div>
+
+<script>
+  document.querySelectorAll('.copy').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const code=btn.closest('.code').querySelector('pre').innerText;
+      navigator.clipboard.writeText(code).then(()=>{
+        const o=btn.textContent;btn.textContent='✓ kopyalandı';btn.classList.add('done');
+        setTimeout(()=>{btn.textContent=o;btn.classList.remove('done')},1400);
+      });
+    });
+  });
+
+  const W=document.getElementById('s_wind'),B=document.getElementById('s_bat'),G=document.getElementById('s_gps');
+  const oW=document.getElementById('o_wind'),oB=document.getElementById('o_bat'),gState=document.getElementById('gps_state');
+  const mname=document.getElementById('mname'),mdesc=document.getElementById('mdesc'),mbox=document.getElementById('modebox');
+  const why=document.getElementById('whyfired'),rows=document.getElementById('evalrows');
+
+  const COL={LAND:'--danger',RTL:'--amber',LOITER:'--cyan',AUTO:'--signal'};
+  const DESC={
+    LAND:'Olduğun yerde alçal ve in',
+    RTL:'Return To Launch — kalkış noktasına dön',
+    LOITER:'Konumda asılı kal, bekle',
+    AUTO:'Göreve devam — her şey normal'
+  };
+  let gps=true;
+
+  function run(){
+    const w=parseInt(W.value),b=parseInt(B.value);
+    oW.textContent=w;oB.textContent=b;
+    gState.textContent=gps?'VAR':'YOK';gState.className='sw-state '+(gps?'lock':'nolock');
+
+    const checks=[
+      {kw:'if',   txt:'ruzgar &gt;= 60',  pass:w>=60, mode:'LAND'},
+      {kw:'elif', txt:'batarya &lt;= 20', pass:b<=20, mode:'RTL'},
+      {kw:'elif', txt:'not gps_lock',     pass:!gps,  mode:'LOITER'},
+    ];
+    let hit=-1;
+    for(let i=0;i<checks.length;i++){if(checks[i].pass){hit=i;break;}}
+    const mode = hit>=0 ? checks[hit].mode : 'AUTO';
+    const col = getComputedStyle(document.documentElement).getPropertyValue(COL[mode]).trim();
+
+    mname.textContent=mode;mname.style.color=col;
+    mbox.style.background='color-mix(in srgb,'+col+' 14%,transparent)';
+    mbox.style.border='1px solid '+col;
+    mdesc.textContent=DESC[mode];mdesc.style.color=col;
+
+    if(hit>=0){
+      why.innerHTML='Tetiklenen dal: <b>'+(checks[hit].kw)+' '+checks[hit].txt.replace(/&lt;/g,'<').replace(/&gt;/g,'>')+'</b> → ilk doğru koşul, burada durdu.';
+    }else{
+      why.innerHTML='Hiçbir koşul tutmadı → <b>else</b> dalı: AUTO.';
+    }
+
+    rows.innerHTML=checks.map((c,i)=>{
+      let cls='er ', state='';
+      if(hit===-1){cls+='pass';state=c.pass?'True':'False';}
+      else if(i<hit){cls+='pass';state='False';}
+      else if(i===hit){cls+='hit';state='True ✓';}
+      else{cls+='skip';state='— atlandı';}
+      return '<div class="'+cls+'"><span>'+c.kw+' '+c.txt+'</span><span class="v">'+state+'</span></div>';
+    }).join('') +
+    '<div class="er '+(hit===-1?'hit':'skip')+'"><span>else</span><span class="v">'+(hit===-1?'AUTO ✓':'—')+'</span></div>';
+  }
+  [W,B].forEach(s=>s.addEventListener('input',run));
+  G.addEventListener('click',()=>{gps=!gps;G.classList.toggle('on',gps);run();});
+  run();
+</script>
+</body>
+</html>

@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Faz1 · Python Operatörleri — IoT Karar Mantığı</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0f0e;--bg-2:#111817;--panel:#0f1514;--line:#1f2b29;--line-soft:#172221;
+    --ink:#d7e0dd;--ink-dim:#8a9794;--ink-faint:#586663;
+    --signal:#36e27b;--cyan:#42c9ff;--amber:#ffb443;--violet:#b98cff;--danger:#ff5d52;
+    --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;--display:'Chakra Petch',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:radial-gradient(900px 500px at 85% -10%,rgba(54,226,123,.07),transparent 60%),
+      radial-gradient(700px 500px at -5% 20%,rgba(66,201,255,.05),transparent 55%),var(--bg);
+    color:var(--ink);font-family:var(--sans);line-height:1.6;-webkit-font-smoothing:antialiased;padding:0 0 80px}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+    background-image:linear-gradient(var(--line-soft) 1px,transparent 1px),linear-gradient(90deg,var(--line-soft) 1px,transparent 1px);
+    background-size:34px 34px;mask-image:radial-gradient(ellipse 100% 70% at 50% 0%,#000 30%,transparent 80%)}
+  .wrap{max-width:920px;margin:0 auto;padding:0 22px;position:relative;z-index:1}
+
+  header{padding:54px 0 30px;border-bottom:1px solid var(--line)}
+  .tagline{font-family:var(--mono);font-size:.72rem;letter-spacing:.32em;text-transform:uppercase;
+    color:var(--signal);display:flex;align-items:center;gap:10px;margin-bottom:18px}
+  .tagline::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--signal);
+    box-shadow:0 0 0 4px rgba(54,226,123,.18);animation:pulse 2s infinite}
+  @keyframes pulse{50%{box-shadow:0 0 0 8px rgba(54,226,123,0)}}
+  h1{font-family:var(--display);font-weight:700;font-size:clamp(1.9rem,5.6vw,3.1rem);line-height:1.06;letter-spacing:-.01em}
+  h1 .accent{color:var(--signal)}
+  .sub{color:var(--ink-dim);max-width:64ch;margin-top:16px;font-size:1.02rem}
+  .why{margin-top:28px;border:1px solid var(--line);border-left:3px solid var(--cyan);
+    background:linear-gradient(180deg,rgba(66,201,255,.05),transparent);border-radius:0 10px 10px 0;padding:20px 22px}
+  .why h3{font-family:var(--display);font-size:1.05rem;color:var(--cyan);margin-bottom:8px}
+  .why p{color:var(--ink-dim);font-size:.95rem}.why b{color:var(--ink)}
+
+  .grid{display:grid;grid-template-columns:1fr;gap:22px;margin-top:34px}
+  .card{border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden;--c:var(--signal)}
+  .card.arit{--c:var(--cyan)}.card.comp{--c:var(--signal)}.card.logic{--c:var(--violet)}.card.assign{--c:var(--amber)}
+  .card-head{display:flex;align-items:center;gap:16px;padding:18px 22px;border-bottom:1px solid var(--line);
+    background:linear-gradient(90deg,color-mix(in srgb,var(--c) 9%,transparent),transparent)}
+  .badge{flex:none;font-family:var(--mono);font-weight:600;font-size:1.3rem;color:var(--bg);background:var(--c);
+    padding:5px 13px;border-radius:8px;box-shadow:0 0 20px color-mix(in srgb,var(--c) 40%,transparent)}
+  .card-head .t{font-family:var(--display);font-size:1.2rem;font-weight:600}
+  .card-head .d{font-family:var(--mono);font-size:.72rem;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.12em;margin-top:2px}
+  .card-body{padding:18px 22px}
+  .card-body>p{color:var(--ink-dim);font-size:.95rem;margin-bottom:14px}.card-body b{color:var(--ink)}
+
+  table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:.86rem}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line-soft)}
+  th{font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint)}
+  td:first-child{font-family:var(--mono);color:var(--c);font-weight:600;white-space:nowrap}
+  td.ex{font-family:var(--mono);color:var(--ink-dim);font-size:.82rem}
+  tr:last-child td{border-bottom:none}
+
+  .code{position:relative;margin:6px 0;border:1px solid var(--line);border-radius:9px;background:#070a09;overflow:hidden}
+  .code-top{display:flex;align-items:center;justify-content:space-between;background:var(--bg-2);padding:8px 12px;border-bottom:1px solid var(--line)}
+  .code-top span{font-family:var(--mono);font-size:.7rem;color:var(--ink-faint);letter-spacing:.1em;text-transform:uppercase}
+  .copy{font-family:var(--mono);font-size:.7rem;background:transparent;border:1px solid var(--line);color:var(--ink-dim);padding:4px 10px;border-radius:5px;cursor:pointer;transition:.15s}
+  .copy:hover{border-color:var(--signal);color:var(--signal)}.copy.done{color:var(--signal);border-color:var(--signal)}
+  pre{padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:.82rem;line-height:1.7}
+  pre code{color:var(--ink)}
+  .c-cmt{color:var(--ink-faint)}.c-kw{color:var(--violet)}.c-fn{color:var(--cyan)}
+  .c-num{color:var(--signal)}.c-str{color:var(--amber)}.c-bool{color:var(--violet)}.c-var{color:var(--ink)}.c-op{color:var(--danger)}
+  .out{color:var(--signal)}
+
+  .note{border:1px solid var(--line);border-radius:9px;padding:13px 15px;margin:14px 0 0;background:var(--bg-2);
+    font-size:.9rem;color:var(--ink-dim);display:flex;gap:12px}
+  .note .tag{flex:none;font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:5px;height:fit-content}
+  .note.tip .tag{background:rgba(54,226,123,.13);color:var(--signal)}
+  .note.warn .tag{background:rgba(255,180,67,.13);color:var(--amber)}
+  .note b{color:var(--ink)}
+  .note code{font-family:var(--mono);font-size:.85em;background:#070a09;padding:1px 6px;border-radius:4px;color:var(--amber)}
+
+  .sec{margin-top:50px}
+  .sec-h{display:flex;align-items:center;gap:13px;margin-bottom:8px}
+  .sec-h .ico{font-family:var(--display);font-weight:700;width:38px;height:38px;border-radius:9px;display:grid;place-items:center;color:var(--bg);flex:none}
+  .sec-h h2{font-family:var(--display);font-size:1.5rem;font-weight:600;line-height:1.15}
+  .sec>p{color:var(--ink-dim);margin:6px 0 14px}.sec p b{color:var(--ink)}
+  .ex-tag{font-family:var(--mono);font-size:.7rem;color:var(--ink-faint);letter-spacing:.12em;text-transform:uppercase}
+
+  /* PANEL */
+  .panel{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:22px;margin-top:14px}
+  .sliders{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:22px}
+  .sl{display:grid;grid-template-columns:120px 1fr 72px;align-items:center;gap:14px}
+  .sl label{font-family:var(--mono);font-size:.84rem;color:var(--ink-dim)}
+  .sl output{font-family:var(--mono);font-weight:600;font-size:1.05rem;text-align:right}
+  input[type=range]{-webkit-appearance:none;appearance:none;height:6px;border-radius:3px;background:var(--bg-2);outline:none;cursor:pointer}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--c,var(--signal));box-shadow:0 0 10px color-mix(in srgb,var(--c,var(--signal)) 50%,transparent);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border:none;border-radius:50%;background:var(--c,var(--signal));cursor:pointer}
+  .rules{display:grid;gap:8px}
+  .rule{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--line);
+    border-radius:9px;padding:11px 14px;background:var(--bg-2);transition:.15s}
+  .rule .expr{font-family:var(--mono);font-size:.82rem;color:var(--ink-dim)}
+  .rule .expr b{color:var(--ink)}
+  .rule .res{font-family:var(--mono);font-weight:600;font-size:.8rem;padding:4px 11px;border-radius:6px;flex:none}
+  .res.t{background:rgba(54,226,123,.15);color:var(--signal)}
+  .res.f{background:rgba(120,134,131,.12);color:var(--ink-faint)}
+  .rule.fire{border-color:var(--signal);box-shadow:0 0 0 1px rgba(54,226,123,.2)}
+
+  footer{margin-top:46px;text-align:center;font-family:var(--mono);font-size:.72rem;color:var(--ink-faint);letter-spacing:.1em}
+  @media(max-width:560px){.sl{grid-template-columns:88px 1fr 60px;gap:8px}.card-head{flex-wrap:wrap;gap:10px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="tagline">Faz 1 · Python Temelleri · Ders 03</div>
+    <h1>Operatörler:<br><span class="accent">sensör verisinden karara</span></h1>
+    <p class="sub">Bir önceki derste sensörün gönderdiği <b>değerleri</b> ve <b>tiplerini</b> gördük. Operatörler, o ham sayıları <b>karara</b> dönüştürür: "31.2 °C mi? O zaman fanı aç." "Pil %18 mi? Geri dön." Bir IoT cihazını "akıllı" yapan şey tam olarak budur.</p>
+    <div class="why">
+      <h3>◇ Operatör = cihazın refleksi</h3>
+      <p>Sensör ölçer, operatör <b>karar verir</b>, aktüatör <b>tepki verir</b>. <code>></code>, <code>and</code>, <code>+</code> gibi semboller bu zincirin ortasındaki beyindir. Karşılaştırma ve mantık operatörleri sana hep bir <b>bool</b> (True/False) döndürür — yani geçen dersle doğrudan bağlanır.</p>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <!-- ARITMETIK -->
+    <div class="card arit">
+      <div class="card-head"><div class="badge">+ −</div>
+        <div><div class="t">Aritmetik operatörler</div><div class="d">Ham veriyi gerçek birime çevirir</div></div></div>
+      <div class="card-body">
+        <p>Sensörden gelen ham değeri <b>anlamlı bir ölçüme</b> dönüştürür: ADC sayısını volta, Celsius'u Fahrenheit'a.</p>
+        <table>
+          <tr><th>Op</th><th>Anlam</th><th>IoT örneği</th></tr>
+          <tr><td>+ − * /</td><td>topla / çıkar / çarp / böl</td><td class="ex">adc / 1023 * 3.3</td></tr>
+          <tr><td>//</td><td>tam bölme (kalanı at)</td><td class="ex">saniye // 60 → dakika</td></tr>
+          <tr><td>%</td><td>mod (kalan)</td><td class="ex">sayac % 10 == 0</td></tr>
+          <tr><td>**</td><td>üs alma</td><td class="ex">dx**2 + dy**2</td></tr>
+        </table>
+        <div class="code">
+          <div class="code-top"><span>python · ham veriyi çevir</span><button class="copy">kopyala</button></div>
+<pre><code><span class="c-var">adc_ham</span> <span class="c-op">=</span> <span class="c-num">812</span>                       <span class="c-cmt"># 0–1023 arası int</span>
+<span class="c-var">voltaj</span>  <span class="c-op">=</span> <span class="c-var">adc_ham</span> <span class="c-op">/</span> <span class="c-num">1023</span> <span class="c-op">*</span> <span class="c-num">3.3</span>     <span class="c-cmt"># → 2.62 V (float)</span>
+<span class="c-var">fahrenheit</span> <span class="c-op">=</span> <span class="c-var">c</span> <span class="c-op">*</span> <span class="c-num">9</span><span class="c-op">/</span><span class="c-num">5</span> <span class="c-op">+</span> <span class="c-num">32</span>          <span class="c-cmt"># °C → °F</span>
+
+<span class="c-cmt"># % ile bant tasarrufu: her 10. okumayı yayınla</span>
+<span class="c-kw">if</span> <span class="c-var">sayac</span> <span class="c-op">%</span> <span class="c-num">10</span> <span class="c-op">==</span> <span class="c-num">0</span><span class="c-op">:</span>
+    <span class="c-fn">yayinla</span>(<span class="c-var">voltaj</span>)               <span class="c-cmt"># MQTT yükünü azaltır</span></code></pre>
+        </div>
+        <div class="note tip"><span class="tag">IoT</span><div><code>%</code> (mod) IoT'de çok işine yarar: "her N okumada bir gönder", döngüsel tampon indeksi, LED yanıp-sönme zamanlaması. <code>//</code> ise zaman/birim dönüşümünde (saniye→dakika) kalanı atmak için.</div></div>
+      </div>
+    </div>
+
+    <!-- KARSILASTIRMA -->
+    <div class="card comp">
+      <div class="card-head"><div class="badge">&gt; =</div>
+        <div><div class="t">Karşılaştırma operatörleri</div><div class="d">Eşik kontrolü · sonuç hep bool</div></div></div>
+      <div class="card-body">
+        <p>İki değeri kıyaslar, sana <b>True/False</b> döndürür. Tüm eşik ve seviye kontrolünün temeli budur.</p>
+        <table>
+          <tr><th>Op</th><th>Anlam</th><th>IoT örneği</th></tr>
+          <tr><td>==</td><td>eşit mi</td><td class="ex">durum == "ERROR"</td></tr>
+          <tr><td>!=</td><td>eşit değil mi</td><td class="ex">id != "DRONE_A7"</td></tr>
+          <tr><td>&gt; &nbsp;&lt;</td><td>büyük / küçük</td><td class="ex">sicaklik &gt; 30</td></tr>
+          <tr><td>&gt;= &lt;=</td><td>büyük-eşit / küçük-eşit</td><td class="ex">pil &lt;= 20</td></tr>
+        </table>
+        <div class="code">
+          <div class="code-top"><span>python · eşik & karşılaştırma</span><button class="copy">kopyala</button></div>
+<pre><code><span class="c-var">sicaklik</span> <span class="c-op">=</span> <span class="c-num">31.2</span>
+<span class="c-var">cok_sicak</span> <span class="c-op">=</span> <span class="c-var">sicaklik</span> <span class="c-op">&gt;</span> <span class="c-num">30.0</span>   <span class="c-cmt"># </span><span class="out">True</span><span class="c-cmt"> (bool!)</span>
+
+<span class="c-var">pil</span> <span class="c-op">=</span> <span class="c-num">18</span>
+<span class="c-var">pil_dusuk</span> <span class="c-op">=</span> <span class="c-var">pil</span> <span class="c-op">&lt;=</span> <span class="c-num">20</span>        <span class="c-cmt"># </span><span class="out">True</span>
+
+<span class="c-cmt"># == ile str karşılaştırma (durum makinesi):</span>
+<span class="c-kw">if</span> <span class="c-var">durum</span> <span class="c-op">==</span> <span class="c-str">"ERROR"</span><span class="c-op">:</span>
+    <span class="c-fn">yeniden_baslat</span>()</code></pre>
+        </div>
+        <div class="note warn"><span class="tag">Karıştırma</span><div><code>=</code> <b>atamadır</b> (değer koyar), <code>==</code> <b>karşılaştırmadır</b> (eşit mi diye sorar). En sık başlangıç hatası budur. Ayrıca float'ları <code>==</code> ile değil, eşik/aralıkla karşılaştır (geçen dersteki yuvarlama hatası).</div></div>
+      </div>
+    </div>
+
+    <!-- MANTIKSAL -->
+    <div class="card logic">
+      <div class="card-head"><div class="badge">&amp; |</div>
+        <div><div class="t">Mantıksal operatörler</div><div class="d">and · or · not — koşulları birleştir</div></div></div>
+      <div class="card-body">
+        <p>Birden fazla koşulu tek karara bağlar. Gerçek kontrol mantığı burada doğar: "hem sıcak <b>hem</b> nemliyse", "pil az <b>ya da</b> sinyal yoksa".</p>
+        <table>
+          <tr><th>Op</th><th>Anlam</th><th>IoT örneği</th></tr>
+          <tr><td>and</td><td>her ikisi de doğruysa</td><td class="ex">sicak and nemli</td></tr>
+          <tr><td>or</td><td>en az biri doğruysa</td><td class="ex">pil_az or sinyal_yok</td></tr>
+          <tr><td>not</td><td>tersine çevir</td><td class="ex">not baglanti</td></tr>
+        </table>
+        <div class="code">
+          <div class="code-top"><span>python · birleşik karar</span><button class="copy">kopyala</button></div>
+<pre><code><span class="c-cmt"># HEM sıcak HEM nemli → küf riski (sera için):</span>
+<span class="c-kw">if</span> <span class="c-var">sicaklik</span> <span class="c-op">&gt;</span> <span class="c-num">30</span> <span class="c-kw">and</span> <span class="c-var">nem</span> <span class="c-op">&gt;</span> <span class="c-num">70</span><span class="c-op">:</span>
+    <span class="c-fn">havalandir</span>()
+
+<span class="c-cmt"># pil az YA DA sinyal koptu → güvenli iniş:</span>
+<span class="c-kw">if</span> <span class="c-var">pil</span> <span class="c-op">&lt;</span> <span class="c-num">15</span> <span class="c-kw">or</span> <span class="c-kw">not</span> <span class="c-var">baglanti</span><span class="c-op">:</span>
+    <span class="c-fn">eve_don</span>()</code></pre>
+        </div>
+        <div class="note tip"><span class="tag">Pro</span><div>Python "kısa devre" yapar: <code>and</code>'de ilk koşul False ise ikinciye bakmaz; <code>or</code>'da ilki True ise durur. Bu, pahalı bir sensör okumasını gereksiz yapmamak için kullanışlıdır: <code>if cihaz_acik and sensor_oku() &gt; 5</code>.</div></div>
+      </div>
+    </div>
+
+    <!-- ATAMA -->
+    <div class="card assign">
+      <div class="card-head"><div class="badge">+=</div>
+        <div><div class="t">Atama operatörleri</div><div class="d">Sayaç & birikim — döngülerin yakıtı</div></div></div>
+      <div class="card-body">
+        <p>Bir değişkeni güncellemenin kısa yolu. Sayaçlarda ve toplam biriktirmede (kat edilen mesafe gibi) her döngüde kullanırsın.</p>
+        <table>
+          <tr><th>Op</th><th>Eşdeğeri</th><th>IoT örneği</th></tr>
+          <tr><td>=</td><td>değer ata</td><td class="ex">pil = 100</td></tr>
+          <tr><td>+=</td><td>x = x + n</td><td class="ex">sayac += 1</td></tr>
+          <tr><td>-=</td><td>x = x − n</td><td class="ex">pil -= 2</td></tr>
+          <tr><td>*= /=</td><td>çarp / böl ve ata</td><td class="ex">hiz *= 0.9</td></tr>
+        </table>
+        <div class="code">
+          <div class="code-top"><span>python · sayaç & birikim</span><button class="copy">kopyala</button></div>
+<pre><code><span class="c-var">paket_sayisi</span> <span class="c-op">=</span> <span class="c-num">0</span>
+<span class="c-var">toplam_mesafe</span> <span class="c-op">=</span> <span class="c-num">0.0</span>
+
+<span class="c-cmt"># her telemetri paketinde:</span>
+<span class="c-var">paket_sayisi</span> <span class="c-op">+=</span> <span class="c-num">1</span>            <span class="c-cmt"># 0 → 1 → 2 ...</span>
+<span class="c-var">toplam_mesafe</span> <span class="c-op">+=</span> <span class="c-var">adim_mesafe</span>  <span class="c-cmt"># kat edilen yolu biriktir</span>
+<span class="c-var">pil</span> <span class="c-op">-=</span> <span class="c-num">2</span>                      <span class="c-cmt"># tüketimi düş</span></code></pre>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /grid -->
+
+  <!-- ÖRNEK 1: EŞİK -->
+  <section class="sec">
+    <div class="sec-h"><div class="ico" style="background:var(--signal)">①</div><h2>Örnek 1 — Sıcaklık eşik kontrolü</h2></div>
+    <p class="ex-tag">karşılaştırma + mantıksal operatörler</p>
+    <p>Bir sera/depo sensörü. Tek eşik yetmez: hem fazla sıcaklığı hem de sıcak+nemli "boğucu" durumu ayrı yönetiriz.</p>
+    <div class="code">
+      <div class="code-top"><span>python · esik_kontrol.py</span><button class="copy">kopyala</button></div>
+<pre><code><span class="c-var">sicaklik</span> <span class="c-op">=</span> <span class="c-num">32.4</span>      <span class="c-cmt"># °C  (sensörden float)</span>
+<span class="c-var">nem</span>      <span class="c-op">=</span> <span class="c-num">75</span>        <span class="c-cmt"># %   (sensörden int)</span>
+
+<span class="c-kw">if</span> <span class="c-var">sicaklik</span> <span class="c-op">&gt;</span> <span class="c-num">35</span><span class="c-op">:</span>
+    <span class="c-fn">print</span>(<span class="c-str">"KRİTİK: aşırı sıcak, sistemi durdur"</span>)
+<span class="c-kw">elif</span> <span class="c-var">sicaklik</span> <span class="c-op">&gt;</span> <span class="c-num">30</span> <span class="c-kw">and</span> <span class="c-var">nem</span> <span class="c-op">&gt;</span> <span class="c-num">70</span><span class="c-op">:</span>
+    <span class="c-fn">print</span>(<span class="c-str">"UYARI: sıcak + nemli, havalandır"</span>)   <span class="c-cmt"># ← bu çalışır</span>
+<span class="c-kw">elif</span> <span class="c-var">sicaklik</span> <span class="c-op">&gt;</span> <span class="c-num">30</span><span class="c-op">:</span>
+    <span class="c-fn">print</span>(<span class="c-str">"Fanı çalıştır"</span>)
+<span class="c-kw">else</span><span class="c-op">:</span>
+    <span class="c-fn">print</span>(<span class="c-str">"Normal aralık"</span>)</code></pre>
+    </div>
+    <div class="note tip"><span class="tag">Mantık</span><div>Sıra önemli: en kritik koşul en üstte. <code>elif</code> zinciri ilk doğru olanda durur — bu yüzden 32.4°C + %75'te "aşırı sıcak"a takılmaz, ikinci kurala düşer.</div></div>
+  </section>
+
+  <!-- ÖRNEK 2: BATARYA -->
+  <section class="sec">
+    <div class="sec-h"><div class="ico" style="background:var(--amber)">②</div><h2>Örnek 2 — Batarya seviyesi karşılaştırma</h2></div>
+    <p class="ex-tag">karşılaştırma + mantıksal + aritmetik</p>
+    <p>Drone bataryası: ham voltajı yüzdeye çevir, sonra kademeli karar ver. LiPo'da 4.2 V dolu, 3.3 V boş kabul edelim.</p>
+    <div class="code">
+      <div class="code-top"><span>python · batarya.py</span><button class="copy">kopyala</button></div>
+<pre><code><span class="c-var">voltaj</span> <span class="c-op">=</span> <span class="c-num">3.55</span>     <span class="c-cmt"># tek hücre LiPo voltajı (float)</span>
+
+<span class="c-cmt"># aritmetik: voltajı %'ye çevir (3.3=boş, 4.2=dolu)</span>
+<span class="c-var">yuzde</span> <span class="c-op">=</span> (<span class="c-var">voltaj</span> <span class="c-op">-</span> <span class="c-num">3.3</span>) <span class="c-op">/</span> (<span class="c-num">4.2</span> <span class="c-op">-</span> <span class="c-num">3.3</span>) <span class="c-op">*</span> <span class="c-num">100</span>   <span class="c-cmt"># ≈ 27.8</span>
+
+<span class="c-kw">if</span> <span class="c-var">yuzde</span> <span class="c-op">&lt;=</span> <span class="c-num">10</span><span class="c-op">:</span>
+    <span class="c-fn">print</span>(<span class="c-str">"ACİL: hemen iniş"</span>)
+<span class="c-kw">elif</span> <span class="c-var">yuzde</span> <span class="c-op">&lt;=</span> <span class="c-num">25</span><span class="c-op">:</span>
+    <span class="c-fn">print</span>(<span class="c-str">"DÜŞÜK: eve dönüş başlat"</span>)        <span class="c-cmt"># ← bu çalışır</span>
+<span class="c-kw">elif</span> <span class="c-var">yuzde</span> <span class="c-op">&lt;</span> <span class="c-num">50</span><span class="c-op">:</span>
+    <span class="c-fn">print</span>(<span class="c-str">"Görevi kısalt"</span>)
+<span class="c-kw">else</span><span class="c-op">:</span>
+    <span class="c-fn">print</span>(<span class="c-str">"Sağlıklı — göreve devam"</span>)</code></pre>
+    </div>
+    <div class="note warn"><span class="tag">Gerçeklik</span><div>LiPo voltaj-yüzde ilişkisi aslında <b>doğrusal değildir</b> (deşarj eğrisi). Bu basit formül Faz1 için yeterli; sahada gerçek bir deşarj tablosu (lookup) veya kalman filtresi kullanılır — o, Faz2'nin işi.</div></div>
+  </section>
+
+  <!-- ÖRNEK 3: GPS -->
+  <section class="sec">
+    <div class="sec-h"><div class="ico" style="background:var(--cyan)">③</div><h2>Örnek 3 — GPS uzaklık hesabı</h2></div>
+    <p class="ex-tag">aritmetik operatörlerin vitrini (** * / + −)</p>
+    <p>İki GPS noktası arasındaki gerçek mesafe (Haversine formülü). "Eve dönüş ne kadar uzakta?" ya da "tarla sınırını aştım mı?" sorularının cevabı. Operatörler burada yoğun çalışır.</p>
+    <div class="code">
+      <div class="code-top"><span>python · gps_mesafe.py</span><button class="copy">kopyala</button></div>
+<pre><code><span class="c-kw">import</span> <span class="c-fn">math</span>
+
+<span class="c-kw">def</span> <span class="c-fn">gps_mesafe</span>(<span class="c-var">lat1</span>, <span class="c-var">lon1</span>, <span class="c-var">lat2</span>, <span class="c-var">lon2</span>)<span class="c-op">:</span>
+    <span class="c-var">R</span> <span class="c-op">=</span> <span class="c-num">6371000</span>                  <span class="c-cmt"># Dünya yarıçapı (metre)</span>
+    <span class="c-var">dlat</span> <span class="c-op">=</span> <span class="c-fn">math</span>.<span class="c-fn">radians</span>(<span class="c-var">lat2</span> <span class="c-op">-</span> <span class="c-var">lat1</span>)
+    <span class="c-var">dlon</span> <span class="c-op">=</span> <span class="c-fn">math</span>.<span class="c-fn">radians</span>(<span class="c-var">lon2</span> <span class="c-op">-</span> <span class="c-var">lon1</span>)
+    <span class="c-cmt"># ** (üs) ve * / + burada iş başında:</span>
+    <span class="c-var">a</span> <span class="c-op">=</span> <span class="c-fn">math</span>.<span class="c-fn">sin</span>(<span class="c-var">dlat</span><span class="c-op">/</span><span class="c-num">2</span>)<span class="c-op">**</span><span class="c-num">2</span> <span class="c-op">+</span> \
+        <span class="c-fn">math</span>.<span class="c-fn">cos</span>(<span class="c-fn">math</span>.<span class="c-fn">radians</span>(<span class="c-var">lat1</span>)) <span class="c-op">*</span> <span class="c-fn">math</span>.<span class="c-fn">cos</span>(<span class="c-fn">math</span>.<span class="c-fn">radians</span>(<span class="c-var">lat2</span>)) <span class="c-op">*</span> \
+        <span class="c-fn">math</span>.<span class="c-fn">sin</span>(<span class="c-var">dlon</span><span class="c-op">/</span><span class="c-num">2</span>)<span class="c-op">**</span><span class="c-num">2</span>
+    <span class="c-kw">return</span> <span class="c-var">R</span> <span class="c-op">*</span> <span class="c-num">2</span> <span class="c-op">*</span> <span class="c-fn">math</span>.<span class="c-fn">asin</span>(<span class="c-fn">math</span>.<span class="c-fn">sqrt</span>(<span class="c-var">a</span>))
+
+<span class="c-cmt"># Tokyo İstasyonu → Shibuya</span>
+<span class="c-var">m</span> <span class="c-op">=</span> <span class="c-fn">gps_mesafe</span>(<span class="c-num">35.6812</span>, <span class="c-num">139.7671</span>, <span class="c-num">35.6580</span>, <span class="c-num">139.7016</span>)
+<span class="c-fn">print</span>(<span class="c-fn">round</span>(<span class="c-var">m</span>, <span class="c-num">1</span>))      <span class="c-cmt"># </span><span class="out">6454.8</span><span class="c-cmt"> metre</span>
+
+<span class="c-cmt"># karar: tarla sınırı 5 km ise aştık mı?</span>
+<span class="c-kw">if</span> <span class="c-var">m</span> <span class="c-op">&gt;</span> <span class="c-num">5000</span><span class="c-op">:</span>
+    <span class="c-fn">print</span>(<span class="c-str">"Sınır aşıldı — geri çağır"</span>)</code></pre>
+    </div>
+    <div class="note tip"><span class="tag">Bağ</span><div>Çok kısa mesafelerde (birkaç yüz metre, tek tarla içi) daha basit bir <b>düzlem yaklaşımı</b> da yeterlidir: <code>mesafe = ((dx)**2 + (dy)**2) ** 0.5</code> — Pisagor. <code>**0.5</code> karekök demektir. Haversine ise Dünya'nın eğriliğini hesaba katar, uzun rotalarda doğrudur.</div></div>
+  </section>
+
+  <!-- INTERAKTIF PANEL -->
+  <section class="sec">
+    <div class="sec-h"><div class="ico" style="background:var(--violet)">▶</div><h2>Canlı karar paneli</h2></div>
+    <p>Kaydırıcıları oynat; operatörlerin sonucu <b>anlık</b> değişsin. Hangi kuralın neden True/False olduğunu canlı gör — karşılaştırma ve mantık operatörlerinin sezgisi böyle oturur.</p>
+    <div class="panel">
+      <div class="sliders">
+        <div class="sl" style="--c:var(--signal)"><label>Sıcaklık °C</label><input type="range" id="s_temp" min="0" max="50" value="32" step="0.5"><output id="o_temp"></output></div>
+        <div class="sl" style="--c:var(--cyan)"><label>Nem %</label><input type="range" id="s_hum" min="0" max="100" value="75"><output id="o_hum"></output></div>
+        <div class="sl" style="--c:var(--amber)"><label>Pil %</label><input type="range" id="s_bat" min="0" max="100" value="18"><output id="o_bat"></output></div>
+      </div>
+      <div class="rules" id="rules"></div>
+    </div>
+  </section>
+
+  <footer>FAZ1.PYTHON · DERS 03 · OPERATÖRLER &amp; KARAR MANTIĞI</footer>
+</div>
+
+<script>
+  document.querySelectorAll('.copy').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const code=btn.closest('.code').querySelector('pre').innerText;
+      navigator.clipboard.writeText(code).then(()=>{
+        const o=btn.textContent;btn.textContent='✓ kopyalandı';btn.classList.add('done');
+        setTimeout(()=>{btn.textContent=o;btn.classList.remove('done')},1400);
+      });
+    });
+  });
+
+  const T=document.getElementById('s_temp'),H=document.getElementById('s_hum'),B=document.getElementById('s_bat');
+  const oT=document.getElementById('o_temp'),oH=document.getElementById('o_hum'),oB=document.getElementById('o_bat');
+  const box=document.getElementById('rules');
+
+  function evalRules(){
+    const t=parseFloat(T.value),h=parseInt(H.value),b=parseInt(B.value);
+    oT.textContent=t.toFixed(1);oH.textContent=h+' %';oB.textContent=b+' %';
+    const rules=[
+      {x:`sicaklik > 30`, v:t>30},
+      {x:`sicaklik > 30 <b>and</b> nem > 70`, v:(t>30&&h>70)},
+      {x:`pil <= 20`, v:b<=20},
+      {x:`pil < 10 <b>or</b> sicaklik > 45`, v:(b<10||t>45)},
+      {x:`<b>not</b> (pil <= 20)`, v:!(b<=20)},
+    ];
+    box.innerHTML=rules.map(r=>
+      `<div class="rule${r.v?' fire':''}">
+        <span class="expr">${r.x}</span>
+        <span class="res ${r.v?'t':'f'}">${r.v?'True':'False'}</span>
+      </div>`).join('');
+  }
+  [T,H,B].forEach(s=>s.addEventListener('input',evalRules));
+  evalRules();
+</script>
+</body>
+</html>

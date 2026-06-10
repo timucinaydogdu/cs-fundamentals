@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Faz1 · Python Veri Tipleri — Sensör Verisiyle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0f0e;--bg-2:#111817;--panel:#0f1514;--line:#1f2b29;--line-soft:#172221;
+    --ink:#d7e0dd;--ink-dim:#8a9794;--ink-faint:#586663;
+    --signal:#36e27b;     /* float */
+    --cyan:#42c9ff;       /* int   */
+    --amber:#ffb443;      /* str   */
+    --violet:#b98cff;     /* bool  */
+    --danger:#ff5d52;
+    --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;--display:'Chakra Petch',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:
+      radial-gradient(900px 500px at 85% -10%, rgba(54,226,123,.07), transparent 60%),
+      radial-gradient(700px 500px at -5% 20%, rgba(66,201,255,.05), transparent 55%),
+      var(--bg);
+    color:var(--ink);font-family:var(--sans);line-height:1.6;-webkit-font-smoothing:antialiased;
+    padding:0 0 80px;
+  }
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+    background-image:linear-gradient(var(--line-soft) 1px,transparent 1px),
+      linear-gradient(90deg,var(--line-soft) 1px,transparent 1px);
+    background-size:34px 34px;
+    mask-image:radial-gradient(ellipse 100% 70% at 50% 0%,#000 30%,transparent 80%);}
+  .wrap{max-width:920px;margin:0 auto;padding:0 22px;position:relative;z-index:1}
+
+  /* HEADER */
+  header{padding:54px 0 30px;border-bottom:1px solid var(--line)}
+  .tagline{font-family:var(--mono);font-size:.72rem;letter-spacing:.32em;text-transform:uppercase;
+    color:var(--signal);display:flex;align-items:center;gap:10px;margin-bottom:18px}
+  .tagline::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--signal);
+    box-shadow:0 0 0 4px rgba(54,226,123,.18);animation:pulse 2s infinite}
+  @keyframes pulse{50%{box-shadow:0 0 0 8px rgba(54,226,123,0)}}
+  h1{font-family:var(--display);font-weight:700;font-size:clamp(1.9rem,5.6vw,3.1rem);line-height:1.06;letter-spacing:-.01em}
+  h1 .accent{color:var(--signal)}
+  .sub{color:var(--ink-dim);max-width:64ch;margin-top:16px;font-size:1.02rem}
+
+  .why{margin-top:28px;border:1px solid var(--line);border-left:3px solid var(--cyan);
+    background:linear-gradient(180deg,rgba(66,201,255,.05),transparent);
+    border-radius:0 10px 10px 0;padding:20px 22px}
+  .why h3{font-family:var(--display);font-size:1.05rem;color:var(--cyan);margin-bottom:8px;display:flex;align-items:center;gap:9px}
+  .why p{color:var(--ink-dim);font-size:.95rem}.why p+p{margin-top:9px}.why b{color:var(--ink)}
+
+  /* TYPE CARDS */
+  .grid{display:grid;grid-template-columns:1fr;gap:22px;margin-top:34px}
+  .card{border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden;
+    --c:var(--signal)}
+  .card.int{--c:var(--cyan)}.card.float{--c:var(--signal)}.card.str{--c:var(--amber)}.card.bool{--c:var(--violet)}
+  .card-head{display:flex;align-items:center;gap:16px;padding:20px 22px;
+    border-bottom:1px solid var(--line);background:linear-gradient(90deg,color-mix(in srgb,var(--c) 9%,transparent),transparent)}
+  .badge{flex:none;font-family:var(--mono);font-weight:600;font-size:1rem;color:var(--bg);
+    background:var(--c);padding:7px 13px;border-radius:8px;box-shadow:0 0 20px color-mix(in srgb,var(--c) 40%,transparent)}
+  .card-head .t{font-family:var(--display);font-size:1.25rem;font-weight:600}
+  .card-head .d{font-family:var(--mono);font-size:.74rem;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.12em;margin-top:2px}
+  .card-body{padding:20px 22px}
+  .card-body>p{color:var(--ink-dim);font-size:.95rem;margin-bottom:14px}
+  .card-body b{color:var(--ink)}
+  .uses{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px}
+  .use{font-family:var(--mono);font-size:.74rem;border:1px solid var(--line);background:var(--bg-2);
+    padding:5px 10px;border-radius:6px;color:var(--ink-dim)}
+  .use b{color:var(--c);font-weight:500}
+
+  /* CODE */
+  .code{position:relative;margin:6px 0;border:1px solid var(--line);border-radius:9px;background:#070a09;overflow:hidden}
+  .code-top{display:flex;align-items:center;justify-content:space-between;background:var(--bg-2);padding:8px 12px;border-bottom:1px solid var(--line)}
+  .code-top span{font-family:var(--mono);font-size:.7rem;color:var(--ink-faint);letter-spacing:.1em;text-transform:uppercase}
+  .copy{font-family:var(--mono);font-size:.7rem;background:transparent;border:1px solid var(--line);color:var(--ink-dim);padding:4px 10px;border-radius:5px;cursor:pointer;transition:.15s}
+  .copy:hover{border-color:var(--signal);color:var(--signal)}.copy.done{color:var(--signal);border-color:var(--signal)}
+  pre{padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:.82rem;line-height:1.7}
+  pre code{color:var(--ink)}
+  .c-cmt{color:var(--ink-faint)}.c-kw{color:var(--violet)}.c-fn{color:var(--cyan)}
+  .c-num{color:var(--signal)}.c-str{color:var(--amber)}.c-bool{color:var(--violet)}.c-var{color:var(--ink)}
+  .out{color:var(--signal)}
+
+  .note{border:1px solid var(--line);border-radius:9px;padding:13px 15px;margin:14px 0 0;
+    background:var(--bg-2);font-size:.9rem;color:var(--ink-dim);display:flex;gap:12px}
+  .note .tag{flex:none;font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:5px;height:fit-content}
+  .note.tip .tag{background:rgba(54,226,123,.13);color:var(--signal)}
+  .note.warn .tag{background:rgba(255,180,67,.13);color:var(--amber)}
+  .note b{color:var(--ink)}
+  .note code{font-family:var(--mono);font-size:.85em;background:#070a09;padding:1px 6px;border-radius:4px;color:var(--amber)}
+
+  /* SECTION HEADER */
+  .sec{margin-top:50px}
+  .sec-h{display:flex;align-items:center;gap:13px;margin-bottom:8px}
+  .sec-h .ico{font-family:var(--display);font-weight:700;width:38px;height:38px;border-radius:9px;display:grid;place-items:center;color:var(--bg);flex:none}
+  .sec-h h2{font-family:var(--display);font-size:1.5rem;font-weight:600;line-height:1.15}
+  .sec>p{color:var(--ink-dim);margin:6px 0 14px}.sec p b{color:var(--ink)}
+
+  /* TRAP block */
+  .trap{border:1px solid var(--danger);border-radius:14px;overflow:hidden;
+    background:linear-gradient(180deg,rgba(255,93,82,.07),transparent)}
+  .trap-h{background:rgba(255,93,82,.1);padding:16px 20px;border-bottom:1px solid color-mix(in srgb,var(--danger) 40%,transparent);
+    font-family:var(--display);font-size:1.15rem;color:var(--danger);display:flex;align-items:center;gap:10px}
+  .trap-b{padding:18px 20px}.trap-b p{color:var(--ink-dim);margin-bottom:12px}.trap-b b{color:var(--ink)}
+
+  /* DETECTOR */
+  .detector{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:20px;margin-top:14px}
+  .chips{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:18px}
+  .vchip{font-family:var(--mono);font-size:.84rem;border:1px solid var(--line);background:var(--bg-2);
+    color:var(--ink);padding:9px 13px;border-radius:8px;cursor:pointer;transition:.16s}
+  .vchip:hover{border-color:var(--ink-dim);transform:translateY(-1px)}
+  .vchip.on{border-color:var(--sel,var(--signal));color:var(--sel,var(--signal));background:color-mix(in srgb,var(--sel,var(--signal)) 10%,transparent)}
+  .readout{border:1px dashed var(--line);border-radius:10px;padding:18px;min-height:96px;display:flex;align-items:center;gap:16px;transition:.2s}
+  .readout .empty{color:var(--ink-faint);font-family:var(--mono);font-size:.85rem}
+  .readout .typ{font-family:var(--mono);font-weight:600;font-size:1.4rem;padding:10px 16px;border-radius:10px;color:var(--bg)}
+  .readout .desc{font-size:.95rem}.readout .desc b{color:var(--ink)}
+  .readout .desc .ev{font-family:var(--mono);color:var(--ink-dim);font-size:.82rem;display:block;margin-top:4px}
+
+  footer{margin-top:46px;text-align:center;font-family:var(--mono);font-size:.72rem;color:var(--ink-faint);letter-spacing:.1em}
+  @media(max-width:560px){.card-head{flex-wrap:wrap;gap:10px}.readout{flex-direction:column;align-items:flex-start}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <header>
+    <div class="tagline">Faz 1 · Python Temelleri · Ders 02</div>
+    <h1>Veri tipleri:<br><span class="accent">int · float · str · bool</span></h1>
+    <p class="sub">Her sensör sana bir <b>değer</b> gönderir — ama bu değerin <b>tipi</b>, onunla ne yapabileceğini belirler. Sıcaklığı toplayabilir, sensör ID'sini metinle birleştirebilir, "hareket var mı?" sorusuna evet/hayır cevabı verebilirsin. Dört temel tipi gerçek IoT verisiyle görelim.</p>
+
+    <div class="why">
+      <h3>◇ IoT'de tip neden hayati?</h3>
+      <p>Bir sensör <b>23.5</b> gönderdiğinde Python bunu nasıl saklasın? Tam sayı mı (<code>int</code>), ondalıklı mı (<code>float</code>), yoksa metin mi (<code>str</code>)? Yanlış tip, yanlış davranış demek: <b>"23.5" + 1</b> hata verir ama <b>23.5 + 1</b> sana 24.5 verir.</p>
+      <p>Üstelik seri porttan ya da MQTT'den gelen her veri başta <b>metindir</b> — onu doğru tipe çevirmek (cast) IoT'nin en sık yapılan ilk hatasıdır. Bu dersin sonundaki tuzak tam olarak bu.</p>
+    </div>
+  </header>
+
+  <!-- TYPE CARDS -->
+  <div class="grid">
+
+    <!-- INT -->
+    <div class="card int">
+      <div class="card-head">
+        <div class="badge">int</div>
+        <div><div class="t">Tam Sayı</div><div class="d">Integer · ondalıksız, kesikli</div></div>
+      </div>
+      <div class="card-body">
+        <p>Sayılabilen, <b>bölünmeyen</b> şeyler: kaç adet, kaçıncı pin, hangi ID. Ondalık kısmı yoktur. Negatif olabilir.</p>
+        <div class="uses">
+          <span class="use"><b>17</b> · GPIO pin no</span>
+          <span class="use"><b>1023</b> · ADC ham değer (10-bit)</span>
+          <span class="use"><b>42</b> · paket sayacı</span>
+          <span class="use"><b>-67</b> · RSSI sinyal gücü (dBm)</span>
+          <span class="use"><b>1718000000</b> · Unix zaman damgası</span>
+        </div>
+        <div class="code">
+          <div class="code-top"><span>python · int</span><button class="copy">kopyala</button></div>
+<pre><code><span class="c-var">pin</span> = <span class="c-num">17</span>                 <span class="c-cmt"># LED'in bağlı olduğu GPIO pini</span>
+<span class="c-var">adc_ham</span> = <span class="c-num">812</span>            <span class="c-cmt"># analog okuma, 0–1023 arası</span>
+<span class="c-var">paket_sayisi</span> = <span class="c-num">42</span>       <span class="c-cmt"># kaç telemetri paketi geldi</span>
+
+<span class="c-cmt"># tam sayılar matematik için hazır:</span>
+<span class="c-var">paket_sayisi</span> = <span class="c-var">paket_sayisi</span> + <span class="c-num">1</span>   <span class="c-cmt"># sayacı artır → 43</span>
+<span class="c-fn">print</span>(<span class="c-fn">type</span>(<span class="c-var">pin</span>))     <span class="c-cmt"># </span><span class="out">&lt;class 'int'&gt;</span></code></pre>
+        </div>
+        <div class="note tip"><span class="tag">IoT</span><div>ADC (analog-dijital çevirici) hep <b>int</b> döner: 10-bit'te 0–1023, 12-bit'te (ESP32) 0–4095. Bu ham sayıyı gerçek birime (volt, °C) çevirince <b>float</b> olur.</div></div>
+      </div>
+    </div>
+
+    <!-- FLOAT -->
+    <div class="card float">
+      <div class="card-head">
+        <div class="badge">float</div>
+        <div><div class="t">Ondalıklı Sayı</div><div class="d">Floating point · sürekli ölçüm</div></div>
+      </div>
+      <div class="card-body">
+        <p>Gerçek dünyadan gelen <b>ölçümler</b>: sıcaklık, voltaj, GPS koordinatı. Ondalık kısmı vardır. Sensörlerin büyük çoğunluğu float üretir.</p>
+        <div class="uses">
+          <span class="use"><b>23.5</b> · sıcaklık °C</span>
+          <span class="use"><b>56.8</b> · nem %</span>
+          <span class="use"><b>3.82</b> · pil voltajı V</span>
+          <span class="use"><b>1013.25</b> · basınç hPa</span>
+          <span class="use"><b>35.6586</b> · GPS enlem</span>
+        </div>
+        <div class="code">
+          <div class="code-top"><span>python · float</span><button class="copy">kopyala</button></div>
+<pre><code><span class="c-var">sicaklik</span> = <span class="c-num">23.5</span>          <span class="c-cmt"># DHT22'den gelen °C</span>
+<span class="c-var">pil_voltaj</span> = <span class="c-num">3.82</span>        <span class="c-cmt"># LiPo hücre voltajı</span>
+<span class="c-var">enlem</span> = <span class="c-num">35.6586</span>          <span class="c-cmt"># Tokyo — GPS latitude</span>
+<span class="c-var">boylam</span> = <span class="c-num">139.7454</span>        <span class="c-cmt"># Tokyo — GPS longitude</span>
+
+<span class="c-cmt"># ham ADC'yi voltaja çevir → sonuç float:</span>
+<span class="c-var">voltaj</span> = <span class="c-var">adc_ham</span> / <span class="c-num">1023</span> * <span class="c-num">3.3</span>   <span class="c-cmt"># 2.62...</span>
+<span class="c-fn">print</span>(<span class="c-fn">type</span>(<span class="c-var">sicaklik</span>))   <span class="c-cmt"># </span><span class="out">&lt;class 'float'&gt;</span></code></pre>
+        </div>
+        <div class="note warn"><span class="tag">Hassasiyet</span><div>İki uyarı: ① GPS'te <b>ondalık basamak sayısı = hassasiyet</b>. 5 basamak ≈ 1 metre; dronu hassas konumlamak için basamağı kırpma. ② float "yuvarlama hatası" yapar: <code>0.1 + 0.2</code> tam <code>0.3</code> etmez. Bu yüzden iki float'ı <code>==</code> ile karşılaştırma; eşik/aralık kullan.</div></div>
+      </div>
+    </div>
+
+    <!-- STR -->
+    <div class="card str">
+      <div class="card-head">
+        <div class="badge">str</div>
+        <div><div class="t">Metin</div><div class="d">String · harf, etiket, mesaj</div></div>
+      </div>
+      <div class="card-body">
+        <p>Üzerinde matematik yapmayacağın her şey: <b>isimler, etiketler, adresler, mesajlar</b>. Tırnak içinde yazılır (<code>"..."</code> veya <code>'...'</code>).</p>
+        <div class="uses">
+          <span class="use"><b>"TEMP_01"</b> · sensör ID</span>
+          <span class="use"><b>"DRONE_A7"</b> · cihaz adı</span>
+          <span class="use"><b>"farm/field1/temp"</b> · MQTT topic</span>
+          <span class="use"><b>"OK"</b> · durum mesajı</span>
+          <span class="use"><b>"A4:CF:12:..."</b> · MAC adresi</span>
+        </div>
+        <div class="code">
+          <div class="code-top"><span>python · str</span><button class="copy">kopyala</button></div>
+<pre><code><span class="c-var">sensor_id</span> = <span class="c-str">"TEMP_01"</span>         <span class="c-cmt"># sayı değil, etiket!</span>
+<span class="c-var">topic</span> = <span class="c-str">"farm/field1/temp"</span>    <span class="c-cmt"># MQTT konu yolu</span>
+<span class="c-var">durum</span> = <span class="c-str">"OK"</span>                  <span class="c-cmt"># "OK" / "ERROR" / "CALIBRATING"</span>
+
+<span class="c-cmt"># metinler + ile birleşir (matematikle değil):</span>
+<span class="c-var">log</span> = <span class="c-var">sensor_id</span> + <span class="c-str">" durumu: "</span> + <span class="c-var">durum</span>
+<span class="c-fn">print</span>(<span class="c-var">log</span>)            <span class="c-cmt"># </span><span class="out">TEMP_01 durumu: OK</span></code></pre>
+        </div>
+        <div class="note warn"><span class="tag">Tuzak</span><div><code>"01"</code> bir metindir, <b>sayı değil</b>. <code>"23.5"</code> da öyle. Seri porttan/MQTT'den gelen veri <b>her zaman</b> metin olarak başlar — birazdan göreceğin en kritik nokta bu.</div></div>
+      </div>
+    </div>
+
+    <!-- BOOL -->
+    <div class="card bool">
+      <div class="card-head">
+        <div class="badge">bool</div>
+        <div><div class="t">Mantıksal</div><div class="d">Boolean · sadece True / False</div></div>
+      </div>
+      <div class="card-body">
+        <p>İki değerli evet/hayır durumu: <b>True</b> (doğru) veya <b>False</b> (yanlış). Dijital sensörler ve karar mantığının temelidir.</p>
+        <div class="uses">
+          <span class="use"><b>True</b> · PIR hareket algıladı</span>
+          <span class="use"><b>False</b> · kapı kapalı</span>
+          <span class="use"><b>is_armed</b> · drone hazır mı</span>
+          <span class="use"><b>alarm_on</b> · alarm aktif mi</span>
+        </div>
+        <div class="code">
+          <div class="code-top"><span>python · bool</span><button class="copy">kopyala</button></div>
+<pre><code><span class="c-var">hareket_var</span> = <span class="c-bool">True</span>        <span class="c-cmt"># PIR sensörü tetiklendi</span>
+<span class="c-var">drone_hazir</span> = <span class="c-bool">False</span>       <span class="c-cmt"># henüz arm edilmedi</span>
+
+<span class="c-cmt"># bool çoğunlukla bir KARŞILAŞTIRMADAN doğar:</span>
+<span class="c-var">sicaklik</span> = <span class="c-num">31.2</span>
+<span class="c-var">cok_sicak</span> = <span class="c-var">sicaklik</span> &gt; <span class="c-num">30.0</span>   <span class="c-cmt"># True (bool)</span>
+
+<span class="c-kw">if</span> <span class="c-var">cok_sicak</span>:                  <span class="c-cmt"># karar mantığı</span>
+    <span class="c-fn">print</span>(<span class="c-str">"Fanı çalıştır!"</span>)</code></pre>
+        </div>
+        <div class="note tip"><span class="tag">Pro ipucu</span><div>Python'da <code>True</code> aslında <b>1</b>, <code>False</code> ise <b>0</b> sayılır. Yani kaç sensörün tetiklendiğini saymak için doğrudan toplayabilirsin: <code>sum([True, False, True])</code> → <b>2</b>. IoT'de "kaç düğüm aktif?" sorusuna şık bir cevap.</div></div>
+      </div>
+    </div>
+
+  </div><!-- /grid -->
+
+  <!-- TRAP -->
+  <section class="sec">
+    <div class="trap">
+      <div class="trap-h">⚠ IoT'nin 1 numaralı tuzağı: gelen veri metindir</div>
+      <div class="trap-b">
+        <p>Arduino seri porttan <b>23.5</b> "gönderir" ama Python'a ulaştığında o bir <b>str</b>'dir — hatta ham haliyle <code>b'23.5\r\n'</code> gibi bayt dizisidir. Üstünde matematik yapmak istersen <b>önce çevirmen (cast)</b> gerekir, yoksa hata alırsın.</p>
+        <div class="code">
+          <div class="code-top"><span>python · cast / çevrim</span><button class="copy">kopyala</button></div>
+<pre><code><span class="c-var">ham</span> = <span class="c-str">"23.5"</span>             <span class="c-cmt"># seri porttan geldi → str!</span>
+
+<span class="c-cmt"># YANLIŞ — metne sayı eklenemez:</span>
+<span class="c-cmt"># ham + 1   →  TypeError: can only concatenate str</span>
+
+<span class="c-cmt"># DOĞRU — önce float'a çevir:</span>
+<span class="c-var">sicaklik</span> = <span class="c-fn">float</span>(<span class="c-var">ham</span>)    <span class="c-cmt"># 23.5  (artık float)</span>
+<span class="c-fn">print</span>(<span class="c-var">sicaklik</span> + <span class="c-num">1</span>)      <span class="c-cmt"># </span><span class="out">24.5</span>  ✓
+
+<span class="c-cmt"># tam sayıysa int(), metne dönüş istersen str():</span>
+<span class="c-var">sayac</span> = <span class="c-fn">int</span>(<span class="c-str">"42"</span>)        <span class="c-cmt"># 42  (int)</span>
+<span class="c-var">mesaj</span> = <span class="c-str">"Sıcaklık: "</span> + <span class="c-fn">str</span>(<span class="c-var">sicaklik</span>)  <span class="c-cmt"># tekrar metne</span></code></pre>
+        </div>
+        <div class="note warn"><span class="tag">Kural</span><div>Akılda kalsın: <b>sensörden / ağdan gelen → çevir, sonra hesapla</b>. <code>float()</code> ölçümler için, <code>int()</code> sayaç/ID için, <code>str()</code> ekrana yazdırırken birleştirmek için.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMBINED -->
+  <section class="sec">
+    <div class="sec-h"><div class="ico" style="background:var(--signal)">⌬</div><h2>Hepsi bir arada: telemetri paketi</h2></div>
+    <p>Gerçek bir drone telemetri paketi dört tipi de aynı anda taşır. İşte Tokyo'da uçan bir dronun anlık verisi:</p>
+    <div class="code">
+      <div class="code-top"><span>python · telemetri</span><button class="copy">kopyala</button></div>
+<pre><code><span class="c-cmt"># --- DRONE TELEMETRİ PAKETİ ---</span>
+<span class="c-var">sensor_id</span>  = <span class="c-str">"DRONE_A7"</span>      <span class="c-cmt"># str   → cihaz etiketi</span>
+<span class="c-var">zaman</span>      = <span class="c-num">1718000000</span>     <span class="c-cmt"># int   → Unix zaman damgası</span>
+<span class="c-var">enlem</span>      = <span class="c-num">35.6586</span>        <span class="c-cmt"># float → GPS (Tokyo)</span>
+<span class="c-var">boylam</span>     = <span class="c-num">139.7454</span>       <span class="c-cmt"># float → GPS (Tokyo)</span>
+<span class="c-var">irtifa_m</span>   = <span class="c-num">120</span>            <span class="c-cmt"># int   → metre</span>
+<span class="c-var">pil_voltaj</span> = <span class="c-num">3.82</span>           <span class="c-cmt"># float → volt</span>
+<span class="c-var">arm_durumu</span> = <span class="c-bool">True</span>           <span class="c-cmt"># bool  → uçuşa hazır mı</span>
+
+<span class="c-cmt"># tipleri tek tek doğrula:</span>
+<span class="c-fn">print</span>(<span class="c-fn">type</span>(<span class="c-var">sensor_id</span>), <span class="c-fn">type</span>(<span class="c-var">enlem</span>), <span class="c-fn">type</span>(<span class="c-var">arm_durumu</span>))
+<span class="c-cmt"># </span><span class="out">&lt;class 'str'&gt; &lt;class 'float'&gt; &lt;class 'bool'&gt;</span>
+
+<span class="c-cmt"># karar mantığı — pil düşükse uyar:</span>
+<span class="c-var">pil_dusuk</span> = <span class="c-var">pil_voltaj</span> &lt; <span class="c-num">3.5</span>    <span class="c-cmt"># False (bool)</span>
+<span class="c-kw">if</span> <span class="c-var">arm_durumu</span> <span class="c-kw">and</span> <span class="c-var">pil_dusuk</span>:
+    <span class="c-fn">print</span>(<span class="c-var">sensor_id</span> + <span class="c-str">" → ACİL: pil düşük, iniş yap"</span>)</code></pre>
+    </div>
+    <div class="note tip"><span class="tag">Bağ kur</span><div>Faz2'de bu paketi <b>MAVLink/pymavlink</b> ile drondan gerçek zamanlı çekeceksin; Faz1'de önce bu tiplerle bir <b>sözlük (dict)</b> kurup MQTT ile yayınlamayı öğreneceksin. Tipleri sağlam oturtmak, o adımı kolaylaştırır.</div></div>
+  </section>
+
+  <!-- DETECTOR -->
+  <section class="sec">
+    <div class="sec-h"><div class="ico" style="background:var(--cyan)">◎</div><h2>Tip dedektörü — kendini test et</h2></div>
+    <p>Aşağıdaki sensör değerlerine tıkla; Python'un onları hangi tip olarak göreceğini ve <b>neden</b> öyle olduğunu söylesin.</p>
+    <div class="detector">
+      <div class="chips" id="chips"></div>
+      <div class="readout" id="readout"><span class="empty">↑ Bir değere tıkla, tipini çözelim…</span></div>
+    </div>
+  </section>
+
+  <footer>FAZ1.PYTHON · DERS 02 · VERİ TİPLERİ &amp; SENSÖR VERİSİ</footer>
+</div>
+
+<script>
+  // copy buttons
+  document.querySelectorAll('.copy').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const code=btn.closest('.code').querySelector('pre').innerText;
+      navigator.clipboard.writeText(code).then(()=>{
+        const o=btn.textContent;btn.textContent='✓ kopyalandı';btn.classList.add('done');
+        setTimeout(()=>{btn.textContent=o;btn.classList.remove('done')},1400);
+      });
+    });
+  });
+
+  // type detector
+  const C={int:'#42c9ff',float:'#36e27b',str:'#ffb443',bool:'#b98cff'};
+  const data=[
+    {v:'42',          t:'int',   why:'Tam sayı — sensör ID veya sayaç. Ondalık yok.', ev:'type(42) → int'},
+    {v:'23.5',        t:'float', why:'Ondalıklı ölçüm — sıcaklık °C. Nokta varsa float.', ev:'type(23.5) → float'},
+    {v:'"TEMP_01"',   t:'str',   why:'Tırnak içinde → metin/etiket. Sayı değil.', ev:'type("TEMP_01") → str'},
+    {v:'True',        t:'bool',  why:'Evet/hayır durumu — PIR hareket algıladı mı.', ev:'type(True) → bool'},
+    {v:'1718000000',  t:'int',   why:'Unix zaman damgası — saniye sayısı, tam sayı.', ev:'type(1718000000) → int'},
+    {v:'35.6586',     t:'float', why:'GPS enlemi — yüksek hassasiyetli ondalık.', ev:'type(35.6586) → float'},
+    {v:'"farm/f1/temp"',t:'str', why:'MQTT topic — yol metni. Eğik çizgiler metnin parçası.', ev:'type("farm/f1/temp") → str'},
+    {v:'False',       t:'bool',  why:'Mantıksal — alarm pasif / kapı kapalı.', ev:'type(False) → bool'},
+    {v:'-67',         t:'int',   why:'RSSI sinyal gücü (dBm) — negatif tam sayı.', ev:'type(-67) → int'},
+    {v:'3.82',        t:'float', why:'Pil voltajı (V) — ondalıklı ölçüm.', ev:'type(3.82) → float'},
+    {v:'"23.5"',      t:'str',   why:'TUZAK! Tırnak içinde → str, sayı DEĞİL. float() ile çevirmen gerekir.', ev:'type("23.5") → str (float değil!)'},
+  ];
+  const chips=document.getElementById('chips'), ro=document.getElementById('readout');
+  data.forEach((d,i)=>{
+    const c=document.createElement('button');
+    c.className='vchip';c.textContent=d.v;c.dataset.i=i;
+    c.addEventListener('click',()=>{
+      document.querySelectorAll('.vchip').forEach(x=>x.classList.remove('on'));
+      c.style.setProperty('--sel',C[d.t]);c.classList.add('on');
+      ro.innerHTML='<div class="typ" style="background:'+C[d.t]+'">'+d.t+'</div>'+
+        '<div class="desc"><b>'+d.why+'</b><span class="ev">'+d.ev+'</span></div>';
+    });
+    chips.appendChild(c);
+  });
+</script>
+</body>
+</html>
